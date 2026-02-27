@@ -14,393 +14,482 @@
   --cyan:   #00f5ff;
   --yellow: #ffe600;
   --green:  #00ff88;
-  --bg:     #0a0010;
-  --bg2:    #110019;
-  --grid:   #180028;
-  --text:   #f0c0ff;
-  --dim:    #6a3a8a;
-  --gmod:   56px;
+  --bg:     #07000d;
+  --bg2:    #0d0018;
+  --dim:    #4a2060;
+  --text:   #d8a0f8;
+  --gmod:   36px;
 }
+
+html, body { width: 100%; height: 100%; overflow: hidden; }
 
 body {
   background: var(--bg);
   color: var(--text);
   font-family: 'Press Start 2P', monospace;
-  height: 100vh;
-  overflow: hidden;
-  display: grid;
-  grid-template-rows: 58px 1fr auto;
+  display: flex;
+  flex-direction: column;
 }
 
-/* ── ANIMATED BG ── */
-.bg-wrap {
-  position: fixed; inset: 0; z-index: 0; overflow: hidden;
+/* ══════════════════════════════
+   BACKGROUND SCENE
+══════════════════════════════ */
+.scene {
+  position: fixed; inset: 0; z-index: 0;
+  /* Sky */
+  background: linear-gradient(180deg,
+    #04000a 0%,
+    #0c0018 25%,
+    #160028 45%,
+    #1e0035 58%,
+    #140025 70%,
+    #08000f 100%
+  );
 }
-/* Ocean Canvas */
-#oceanCanvas {
-  position: absolute;
-  inset: 0;
-  width: 100%; height: 100%;
-  z-index: 0;
-}
+
 /* Stars */
-.bg-stars {
-  position: absolute; inset: 0;
-}
+.stars { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 .star {
-  position: absolute; background: #fff;
-  width: 2px; height: 2px; border-radius: 50%;
-  animation: twinkle var(--d) ease-in-out infinite;
-  animation-delay: var(--dl);
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  animation: twinkle var(--d, 3s) ease-in-out infinite;
+  animation-delay: var(--dl, 0s);
 }
-@keyframes twinkle { 0%,100%{opacity:1;} 50%{opacity:0.1;} }
+@keyframes twinkle { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.1;transform:scale(0.5);} }
+
+/* Sun */
+.sun-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: 34%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Title above sun */
+.sun-label {
+  text-align: center;
+  margin-bottom: 10px;
+  animation: labelFlicker 8s ease-in-out infinite;
+}
+@keyframes labelFlicker {
+  0%,88%,100%{opacity:1;} 90%{opacity:0.3;} 92%{opacity:1;} 95%{opacity:0.5;} 97%{opacity:1;}
+}
+.sun-label-top {
+  display: block;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  color: var(--cyan);
+  text-shadow: 0 0 20px var(--cyan), 0 0 40px rgba(0,245,255,0.4);
+  margin-bottom: 5px;
+}
+.sun-label-bot {
+  display: block;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  color: var(--yellow);
+  text-shadow: 0 0 20px var(--yellow), 0 0 40px rgba(255,230,0,0.5), 3px 3px 0 rgba(180,0,255,0.5);
+}
+
+.sun {
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: linear-gradient(180deg,
+    #fff5a0 0%,
+    #ffe600 15%,
+    #ff8c00 35%,
+    #ff2d78 60%,
+    #cc00dd 80%,
+    #7700bb 100%
+  );
+  box-shadow:
+    0 0 40px rgba(255,45,120,0.8),
+    0 0 80px rgba(180,0,255,0.5),
+    0 0 160px rgba(255,45,120,0.2);
+  overflow: hidden;
+  position: relative;
+  animation: sunGlow 4s ease-in-out infinite;
+}
+@keyframes sunGlow {
+  0%,100% { box-shadow: 0 0 40px rgba(255,45,120,0.8), 0 0 80px rgba(180,0,255,0.5), 0 0 160px rgba(255,45,120,0.2); }
+  50%      { box-shadow: 0 0 60px rgba(255,45,120,1),   0 0 120px rgba(180,0,255,0.8), 0 0 200px rgba(255,45,120,0.3); }
+}
+/* Sun stripe lines */
+.sun::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 0; right: 0; bottom: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--bg) 0, var(--bg) 4px,
+    transparent 4px, transparent 10px,
+    var(--bg) 10px, var(--bg) 13px,
+    transparent 13px, transparent 20px,
+    var(--bg) 20px, var(--bg) 22px,
+    transparent 22px, transparent 28px,
+    var(--bg) 28px, var(--bg) 29px,
+    transparent 29px, transparent 200px
+  );
+}
+/* Sun horizon reflection */
+.sun-reflection {
+  position: fixed;
+  left: 50%; transform: translateX(-50%);
+  bottom: 0;
+  width: 4px;
+  height: 34%;
+  background: linear-gradient(to bottom, rgba(255,45,120,0.4), transparent);
+  box-shadow: 0 0 20px rgba(255,45,120,0.3);
+  z-index: 3;
+  animation: reflShimmer 3s ease-in-out infinite;
+}
+@keyframes reflShimmer { 0%,100%{width:4px;opacity:0.5;} 50%{width:12px;opacity:0.8;} }
+
+/* Mountains back */
+.mtn-back {
+  position: fixed;
+  bottom: 28%;
+  left: 0; right: 0;
+  height: 160px;
+  z-index: 4;
+  background: #0e001e;
+  clip-path: polygon(
+    0 100%, 0 60%,
+    3% 35%, 7% 55%, 11% 20%, 15% 48%, 20% 10%,
+    25% 42%, 29% 18%, 34% 45%, 39% 5%,
+    44% 38%, 48% 22%, 53% 50%, 57% 12%,
+    62% 40%, 66% 25%, 71% 52%, 76% 8%,
+    81% 42%, 85% 20%, 89% 48%, 93% 15%,
+    97% 45%, 100% 30%, 100% 100%
+  );
+  filter: drop-shadow(0 -3px 8px rgba(180,0,255,0.5));
+}
+.mtn-back::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(180,0,255,0.8), var(--purple), rgba(180,0,255,0.8), transparent);
+  box-shadow: 0 0 10px var(--purple);
+}
+
+/* Mountains front */
+.mtn-front {
+  position: fixed;
+  bottom: 22%;
+  left: 0; right: 0;
+  height: 130px;
+  z-index: 5;
+  background: #09000f;
+  clip-path: polygon(
+    0 100%, 0 75%,
+    4% 45%, 8% 68%, 13% 30%, 18% 60%, 23% 22%,
+    28% 55%, 33% 35%, 38% 65%, 43% 18%,
+    48% 50%, 52% 72%, 57% 28%, 62% 58%,
+    67% 38%, 72% 65%, 77% 20%, 82% 55%,
+    87% 35%, 91% 62%, 95% 40%, 100% 58%,
+    100% 100%
+  );
+  filter: drop-shadow(0 -4px 6px rgba(255,45,120,0.5));
+}
+.mtn-front::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,45,120,0.9), var(--pink), rgba(255,45,120,0.9), transparent);
+  box-shadow: 0 0 12px var(--pink);
+}
+
+/* Horizon glow line */
+.horizon {
+  position: fixed;
+  bottom: 22%;
+  left: 0; right: 0; height: 2px;
+  z-index: 6;
+  background: linear-gradient(90deg, transparent 0%, var(--pink) 20%, var(--cyan) 50%, var(--pink) 80%, transparent 100%);
+  box-shadow: 0 0 16px var(--pink), 0 0 32px rgba(180,0,255,0.4);
+}
+
+/* Ocean */
+.ocean {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 22%;
+  z-index: 6;
+  background: linear-gradient(180deg, #100020 0%, #07000d 100%);
+  overflow: hidden;
+}
+.wave {
+  position: absolute; left: -10%; right: -10%;
+  height: 1px;
+  border-radius: 50%;
+  animation: waveAnim linear infinite;
+  opacity: 0;
+}
+.wave:nth-child(1)  { top: 5%;  height:2px; background: linear-gradient(90deg,transparent,rgba(255,45,120,0.7),transparent); animation-duration:5s;  animation-delay:0s;   }
+.wave:nth-child(2)  { top: 15%; height:1px; background: linear-gradient(90deg,transparent,rgba(180,0,255,0.5),transparent); animation-duration:6.5s;animation-delay:0.8s; }
+.wave:nth-child(3)  { top: 27%; height:2px; background: linear-gradient(90deg,transparent,rgba(0,245,255,0.4),transparent); animation-duration:7s;  animation-delay:1.5s; }
+.wave:nth-child(4)  { top: 40%; height:1px; background: linear-gradient(90deg,transparent,rgba(255,45,120,0.3),transparent); animation-duration:8s;  animation-delay:0.3s; }
+.wave:nth-child(5)  { top: 55%; height:1px; background: linear-gradient(90deg,transparent,rgba(180,0,255,0.25),transparent);animation-duration:9s;  animation-delay:1.2s; }
+.wave:nth-child(6)  { top: 68%; height:1px; background: linear-gradient(90deg,transparent,rgba(0,245,255,0.2),transparent); animation-duration:10s; animation-delay:2s;   }
+.wave:nth-child(7)  { top: 80%; height:1px; background: linear-gradient(90deg,transparent,rgba(255,45,120,0.15),transparent);animation-duration:11s; animation-delay:0.6s; }
+.wave:nth-child(8)  { top: 90%; height:1px; background: linear-gradient(90deg,transparent,rgba(180,0,255,0.1),transparent); animation-duration:12s; animation-delay:1.8s; }
+@keyframes waveAnim {
+  0%   { transform:translateX(-5%) scaleX(0.95); opacity:0;   }
+  10%  { opacity:1; }
+  50%  { transform:translateX(5%)  scaleX(1.05); opacity:0.8; }
+  90%  { opacity:1; }
+  100% { transform:translateX(-5%) scaleX(0.95); opacity:0;   }
+}
 
 /* Scanlines */
 .scanlines {
-  position: fixed; inset: 0; z-index: 200; pointer-events: none;
-  background: repeating-linear-gradient(to bottom, transparent 0, transparent 3px, rgba(0,0,0,0.18) 3px, rgba(0,0,0,0.18) 4px);
-}
-.crt-edge {
-  position: fixed; inset: 0; z-index: 201; pointer-events: none;
-  box-shadow: inset 0 0 80px rgba(180,0,255,0.12), inset 0 0 30px rgba(0,245,255,0.06);
+  position: fixed; inset: 0; z-index: 100; pointer-events: none;
+  background: repeating-linear-gradient(to bottom, transparent 0, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px);
 }
 
-/* ── TOPBAR ── */
+/* ══════════════════════════════
+   TOPBAR
+══════════════════════════════ */
 .topbar {
-  position: relative; z-index: 10;
+  position: relative; z-index: 200;
   display: flex; align-items: center; justify-content: space-between;
+  height: 54px;
   padding: 0 20px;
-  background: rgba(10,0,16,0.95);
+  background: rgba(7,0,13,0.96);
   border-bottom: 2px solid var(--purple);
-  box-shadow: 0 0 20px rgba(180,0,255,0.4), 0 3px 0 var(--pink);
-}
-.tb-left { display: flex; align-items: center; gap: 10px; }
-.tb-logo {
-  width: 36px; height: 36px; object-fit: cover;
-  border: 2px solid var(--pink);
-  box-shadow: 0 0 8px var(--pink);
-}
-.tb-name {
-  font-size: 0.65rem; color: var(--cyan);
-  text-shadow: 0 0 10px var(--cyan), 2px 2px 0 var(--purple);
-  letter-spacing: 0.05em;
-}
-.tb-right {
-  font-family: 'VT323', monospace; font-size: 1rem;
-  color: var(--pink); text-shadow: 0 0 8px var(--pink);
-  animation: blink 1s step-end infinite;
-  display: flex; align-items: center; gap: 6px;
-}
-@keyframes blink { 50%{opacity:0.3;} }
-
-/* ── MAIN GRID ── */
-.main {
-  position: relative; z-index: 5;
-  display: grid;
-  grid-template-columns: 1fr 260px;
-  grid-template-rows: 1fr;
-  overflow: hidden;
-  margin-top: 52px;
-}
-
-/* ── LEFT AREA ── */
-.left {
-  display: grid;
-  grid-template-rows: 1fr auto;
-  overflow: hidden;
-}
-
-/* Map preview area */
-.map-preview {
-  position: relative;
-  overflow: hidden;
-  display: flex; align-items: center; justify-content: center;
-}
-.map-preview-img {
-  position: absolute; inset: 0;
-  background: transparent;
-  display: flex; align-items: center; justify-content: center;
-}
-.map-label {
-  position: absolute; bottom: 12px; left: 16px;
-  font-family: 'VT323', monospace; font-size: 1.3rem;
-  color: var(--cyan); text-shadow: 0 0 12px var(--cyan);
-  z-index: 2;
-  background: rgba(10,0,16,0.7);
-  padding: 2px 10px;
-  border: 1px solid var(--cyan);
-}
-
-/* Tip box inside map preview */
-.preview-tip-box {
-  position: absolute;
-  bottom: 44px; left: 12px; right: 12px;
-  background: rgba(10,0,16,0.82);
-  border: 1px solid var(--purple);
-  box-shadow: 0 0 12px rgba(180,0,255,0.3);
-  padding: 6px 12px;
-  z-index: 3;
-}
-.preview-tip-label {
-  font-size: 0.35rem; letter-spacing: 0.15em;
-  color: var(--cyan); text-shadow: 0 0 8px var(--cyan);
-  margin-bottom: 4px;
-}
-.tip-text {
-  font-family: "VT323", monospace; font-size: 0.85rem;
-  color: var(--text); opacity: 0.8; line-height: 1.4;
-  transition: opacity 0.4s;
-}
-.tip-text span { color: var(--yellow); }
-
-
-
-/* Bottom left: stats + tips */
-.left-bottom {
-  padding: 10px 16px;
-  background: rgba(10,0,16,0.9);
-  border-top: 2px solid var(--grid);
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr auto;
-  gap: 10px;
-  align-items: center;
-}
-.mini-stat { min-width: 0; }
-.mini-stat {
-  border: 1px solid var(--purple);
-  padding: 6px 10px;
-  background: rgba(180,0,255,0.05);
-  box-shadow: inset 0 0 8px rgba(180,0,255,0.1);
-}
-.mini-stat-val {
-  font-family: 'VT323', monospace; font-size: 1.2rem;
-  color: var(--pink); text-shadow: 0 0 8px var(--pink); line-height: 1;
-}
-.mini-stat-key {
-  font-size: 0.3rem; letter-spacing: 0.12em; color: var(--dim);
-  text-transform: uppercase; margin-top: 2px;
-}
-
-/* Mascot in bottom-left stats area */
-.mascot-wrap {
-  display: flex; align-items: flex-end; justify-content: center;
-}
-.mascot {
-  height: 60px; image-rendering: pixelated;
-  filter: drop-shadow(0 0 10px var(--pink));
-  animation: mascotBob 2s ease-in-out infinite;
-}
-@keyframes mascotBob { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
-
-/* ── RIGHT PANEL ── */
-.right {
-  border-left: 2px solid var(--purple);
-  box-shadow: -6px 0 20px rgba(180,0,255,0.2);
-  background: rgba(10,0,16,0.85);
-  display: flex; flex-direction: column;
-  overflow: hidden;
-}
-
-.r-section {
-  border-bottom: 1px solid var(--grid);
+  box-shadow: 0 0 24px rgba(180,0,255,0.4), 0 3px 0 var(--pink);
   flex-shrink: 0;
 }
-.r-title {
-  font-size: 0.38rem; letter-spacing: 0.18em;
-  color: var(--cyan); text-shadow: 0 0 8px var(--cyan);
-  padding: 8px 14px 0;
-  display: flex; align-items: center; gap: 5px;
+.tb-left { display: flex; align-items: center; gap: 12px; }
+.tb-logo { width: 36px; height: 36px; object-fit: cover; border: 2px solid var(--pink); box-shadow: 0 0 10px var(--pink); }
+.tb-name { font-size: 0.65rem; color: var(--cyan); text-shadow: 0 0 12px var(--cyan), 2px 2px 0 rgba(180,0,255,0.5); letter-spacing: 0.06em; }
+.tb-status {
+  font-family: 'VT323', monospace; font-size: 1rem;
+  color: var(--pink); text-shadow: 0 0 10px var(--pink);
+  display: flex; align-items: center; gap: 6px;
+  animation: blink 1.2s step-end infinite;
 }
-.r-title::before { content: '▶'; font-size: 0.4rem; }
+.tb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 8px var(--pink); }
+@keyframes blink { 50%{opacity:0.25;} }
 
-/* ── MUSIC PLAYER ── */
-.music-player {
-  padding: 8px 14px 10px;
-}
-.music-track-name {
-  font-family: 'VT323', monospace; font-size: 0.95rem;
-  color: var(--yellow); text-shadow: 0 0 8px var(--yellow);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  margin-bottom: 4px;
-}
-.music-artist {
-  font-family: 'VT323', monospace; font-size: 0.75rem;
-  color: var(--dim); margin-bottom: 8px;
-}
-.music-controls {
-  display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
-}
-
-.music-progress-track {
-  height: 3px; background: var(--grid); border: 1px solid var(--dim);
-  position: relative; overflow: hidden;
-}
-.music-progress-fill {
-  height: 100%; width: 0%;
-  background: linear-gradient(90deg, var(--purple), var(--pink));
-  box-shadow: 0 0 6px var(--pink);
-  transition: width 1s linear;
-}
-.music-time {
-  display: flex; justify-content: space-between;
-  font-family: 'VT323', monospace; font-size: 0.65rem;
-  color: var(--dim); margin-top: 2px;
-}
-
-/* Playlist */
-.playlist-wrap { flex: 1; overflow-y: auto; }
-.playlist-wrap::-webkit-scrollbar { width: 3px; }
-.playlist-wrap::-webkit-scrollbar-thumb { background: var(--purple); }
-.playlist-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 14px;
-  border-bottom: 1px solid rgba(180,0,255,0.1);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.playlist-item:hover { background: rgba(180,0,255,0.08); }
-.playlist-item.playing { background: rgba(255,45,120,0.08); }
-.pl-num {
-  font-family: 'VT323', monospace; font-size: 0.7rem; color: var(--dim); width: 14px; flex-shrink: 0;
-}
-.pl-icon { font-size: 0.5rem; color: var(--pink); width: 10px; flex-shrink: 0; }
-.pl-name {
-  font-family: 'VT323', monospace; font-size: 0.8rem; color: var(--text);
-  flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-.pl-dur { font-family: 'VT323', monospace; font-size: 0.65rem; color: var(--dim); }
-
-
-
-/* ── LADEBALKEN ── */
+/* ══════════════════════════════
+   LADEBALKEN (direkt unter Topbar)
+══════════════════════════════ */
 .loader {
-  position: fixed;
-  top: 58px; left: 0; right: 0;
-  z-index: 9999;
-  background: rgba(10,0,16,0.98);
-  border-bottom: 2px solid var(--pink);
-  border-top: 1px solid rgba(255,45,120,0.2);
-  box-shadow: 0 4px 20px rgba(255,45,120,0.3);
-  padding: 6px 18px 8px;
+  position: relative; z-index: 200;
+  flex-shrink: 0;
+  background: rgba(7,0,13,0.98);
+  border-bottom: 2px solid rgba(180,0,255,0.4);
+  padding: 6px 20px 8px;
+  box-shadow: 0 4px 20px rgba(255,45,120,0.2);
 }
 .loader-top {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 5px;
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;
 }
-.loader-msg {
-  font-size: 0.35rem; letter-spacing: 0.1em; color: var(--cyan);
-  text-shadow: 0 0 8px var(--cyan);
-}
-.loader-pct {
-  font-family: 'VT323', monospace; font-size: 1.2rem;
-  color: var(--pink); text-shadow: 0 0 10px var(--pink);
-}
+.loader-msg { font-size: 0.35rem; letter-spacing: 0.12em; color: var(--cyan); text-shadow: 0 0 8px var(--cyan); }
+.loader-pct { font-family: 'VT323', monospace; font-size: 1.3rem; color: var(--pink); text-shadow: 0 0 12px var(--pink); }
 .loader-track {
-  width: 100%; height: 8px; background: var(--grid);
-  border: 1px solid var(--purple); position: relative; overflow: hidden;
+  width: 100%; height: 10px;
+  background: rgba(180,0,255,0.1);
+  border: 1px solid rgba(180,0,255,0.4);
+  border-radius: 1px;
+  overflow: hidden;
+  position: relative;
 }
 .loader-bar {
   height: 100%; width: 0%;
-  background: repeating-linear-gradient(90deg, var(--pink) 0, var(--pink) 6px, var(--purple) 6px, var(--purple) 12px);
-  box-shadow: 0 0 12px var(--pink);
-  transition: width 0.3s steps(8);
+  background: repeating-linear-gradient(90deg,
+    var(--pink) 0, var(--pink) 8px,
+    var(--purple) 8px, var(--purple) 16px
+  );
+  box-shadow: 0 0 16px var(--pink);
+  transition: width 0.3s ease;
   position: relative;
 }
 .loader-bar::after {
-  content: '';
-  position: absolute; right: 0; top: 0; bottom: 0; width: 3px;
-  background: #fff; animation: cur 0.5s step-end infinite;
+  content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 3px;
+  background: #fff; box-shadow: 0 0 8px #fff;
+  animation: cur 0.5s step-end infinite;
 }
 @keyframes cur { 50%{opacity:0;} }
+
+/* ══════════════════════════════
+   MAIN CONTENT
+══════════════════════════════ */
+.main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 270px;
+  position: relative; z-index: 150;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── LEFT ── */
+.left { position: relative; display: flex; flex-direction: column; justify-content: flex-end; }
+
+/* Info boxes at bottom left */
+.info-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(7,0,13,0.88);
+  border-top: 1px solid rgba(180,0,255,0.25);
+  backdrop-filter: blur(4px);
+}
+.info-box {
+  background: rgba(180,0,255,0.05);
+  border: 1px solid rgba(180,0,255,0.35);
+  padding: 8px 10px;
+  position: relative;
+  overflow: hidden;
+}
+.info-box::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--purple), transparent);
+}
+.info-val {
+  font-family: 'VT323', monospace; font-size: 1.3rem;
+  color: var(--pink); text-shadow: 0 0 10px var(--pink); line-height: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.info-key {
+  font-size: 0.28rem; letter-spacing: 0.15em; color: var(--dim);
+  text-transform: uppercase; margin-top: 3px;
+}
+
+/* Tip box */
+.tip-area {
+  padding: 8px 16px;
+  background: rgba(7,0,13,0.82);
+  border-top: 1px solid rgba(180,0,255,0.15);
+}
+.tip-lbl { font-size: 0.32rem; letter-spacing: 0.15em; color: var(--cyan); margin-bottom: 4px; }
+.tip-txt {
+  font-family: 'VT323', monospace; font-size: 0.9rem;
+  color: rgba(220,170,255,0.85); line-height: 1.4;
+  transition: opacity 0.4s;
+}
+.tip-txt span { color: var(--yellow); }
+
+/* ── RIGHT PANEL ── */
+.right {
+  border-left: 2px solid rgba(180,0,255,0.5);
+  box-shadow: -8px 0 30px rgba(180,0,255,0.15);
+  background: rgba(7,0,13,0.92);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  backdrop-filter: blur(4px);
+}
+
+.panel-hdr {
+  font-size: 0.36rem; letter-spacing: 0.18em; color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+  padding: 8px 14px 5px;
+  display: flex; align-items: center; gap: 5px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(180,0,255,0.15);
+}
+.panel-hdr::before { content: '▶'; font-size: 0.38rem; color: var(--pink); }
+
+/* Music */
+.music-block { padding: 8px 14px 10px; flex-shrink: 0; }
+.now-track {
+  font-family: 'VT323', monospace; font-size: 1rem;
+  color: var(--yellow); text-shadow: 0 0 10px var(--yellow);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.now-artist { font-family: 'VT323', monospace; font-size: 0.78rem; color: var(--dim); margin-bottom: 8px; }
+.mus-prog { height: 3px; background: rgba(180,0,255,0.2); border: 1px solid rgba(180,0,255,0.3); cursor: pointer; margin-bottom: 3px; }
+.mus-prog-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--purple), var(--pink)); box-shadow: 0 0 6px var(--pink); transition: width 1s linear; }
+.mus-time { display: flex; justify-content: space-between; font-family: 'VT323', monospace; font-size: 0.62rem; color: var(--dim); }
+
+/* Visualiser */
+.vis-block { padding: 4px 14px 8px; flex-shrink: 0; }
+.vis-bars {
+  display: flex; align-items: flex-end; gap: 2px;
+  height: 55px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(180,0,255,0.2);
+  border-radius: 1px;
+  padding: 3px;
+  overflow: hidden;
+}
+.vbar {
+  flex: 1; min-height: 2px; border-radius: 1px 1px 0 0;
+  background: linear-gradient(to top, var(--purple), var(--pink), #fff);
+  box-shadow: 0 0 4px var(--pink);
+  transition: height 0.08s ease;
+}
+
+/* Players */
+.players-block { flex: 1; display: flex; flex-direction: column; min-height: 0; border-top: 1px solid rgba(180,0,255,0.15); }
+.players-scroll { flex: 1; overflow-y: auto; padding: 4px 0; }
+.players-scroll::-webkit-scrollbar { width: 3px; }
+.players-scroll::-webkit-scrollbar-thumb { background: var(--purple); }
+.p-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 14px;
+  border-bottom: 1px solid rgba(180,0,255,0.07);
+  animation: rowIn 0.3s ease both;
+  animation-delay: calc(var(--i,0) * 0.04s);
+}
+@keyframes rowIn { from{opacity:0;transform:translateX(8px);} to{opacity:1;} }
+.p-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: var(--c, var(--purple)); box-shadow: 0 0 5px var(--c, var(--purple)); }
+.p-name { font-family: 'VT323', monospace; font-size: 0.85rem; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-ping { font-family: 'VT323', monospace; font-size: 0.72rem; }
+.p-ping.g { color: var(--green); } .p-ping.o { color: var(--yellow); } .p-ping.b { color: var(--pink); }
+.p-empty { padding: 12px 14px; font-family: 'VT323', monospace; font-size: 0.8rem; color: var(--dim); line-height: 2; }
 </style>
 </head>
 <body>
 
-<div class="bg-wrap">
-  <canvas id="oceanCanvas"></canvas>
-  <div class="bg-stars" id="stars"></div>
+<!-- SCENE -->
+<div class="scene"></div>
+<div class="stars" id="stars"></div>
+
+<!-- SUN + REFLECTION -->
+<div class="sun-wrap">
+  <div class="sun-label">
+    <span class="sun-label-top">HOUSE OF</span>
+    <span class="sun-label-bot">CRAZY PEOPLE</span>
+  </div>
+  <div class="sun"></div>
 </div>
+<div class="sun-reflection"></div>
+
+<!-- MOUNTAINS -->
+<div class="mtn-back"></div>
+<div class="mtn-front"></div>
+<div class="horizon"></div>
+
+<!-- OCEAN -->
+<div class="ocean">
+  <div class="wave"></div><div class="wave"></div><div class="wave"></div>
+  <div class="wave"></div><div class="wave"></div><div class="wave"></div>
+  <div class="wave"></div><div class="wave"></div>
+</div>
+
 <div class="scanlines"></div>
-<div class="crt-edge"></div>
 
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="tb-left">
-    <img class="tb-logo" src="p.png" alt="Logo">
-    <div class="tb-name" id="serverNameDisp">HOUSE OF CRAZY PEOPLE</div>
+    <img class="tb-logo" src="p.png" alt="">
+    <span class="tb-name" id="serverName">HOUSE OF CRAZY PEOPLE</span>
   </div>
-  <div class="tb-right">
-    <span>●</span><span id="statusPill">CONNECTING...</span>
-  </div>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-
-  <!-- LEFT -->
-  <div class="left">
-    <!-- Map Preview with Sun + Tips -->
-    <div class="map-preview">
-      <div class="map-preview-img">
-      </div>
-
-      <!-- Tips unten links in der Map Preview -->
-      <div class="preview-tip-box">
-        <div class="preview-tip-label">▶ TIPP</div>
-        <div class="tip-text" id="tipText">&gt; <span>Lade Tipps...</span></div>
-      </div>
-      <div class="map-label">MAP: <span id="mapDisp">--</span></div>
-    </div>
-
-    <!-- Bottom stats row -->
-    <div class="left-bottom">
-      <div class="mini-stat">
-        <div class="mini-stat-val" id="playerCount">--/32</div>
-        <div class="mini-stat-key">Spieler</div>
-      </div>
-      <div class="mini-stat">
-        <div class="mini-stat-val">TTT</div>
-        <div class="mini-stat-key">Modus</div>
-      </div>
-
-      <div class="mini-stat">
-        <div class="mini-stat-val" id="pingDisp">--</div>
-        <div class="mini-stat-key">Ping ms</div>
-      </div>
-      <div class="mascot-wrap">
-        <img class="mascot" src="p.png" alt="mascot">
-      </div>
-    </div>
-  </div>
-
-  <!-- RIGHT -->
-  <div class="right">
-
-    <!-- Music Player -->
-    <div class="r-section">
-      <div class="r-title">NOW PLAYING</div>
-      <div class="music-player">
-        <div class="music-track-name" id="trackName">Kein Track</div>
-        <div class="music-artist" id="trackArtist">--</div>
-
-        <div class="music-progress-track" id="progressTrack" onclick="seekMusic(event)">
-          <div class="music-progress-fill" id="musicProgress"></div>
-        </div>
-        <div class="music-time">
-          <span id="timeNow">0:00</span>
-          <span id="timeTotal">0:00</span>
-        </div>
-      </div>
-    </div>
-
-
-
-
-
+  <div class="tb-status">
+    <div class="tb-dot"></div>
+    <span id="statusTxt">CONNECTING...</span>
   </div>
 </div>
 
-<!-- LADEBALKEN -->
+<!-- LADEBALKEN (direkt unter Topbar, kein Konflikt mit GMod) -->
 <div class="loader">
   <div class="loader-top">
     <div class="loader-msg" id="loadMsg">VERBINDE MIT SERVER...</div>
@@ -411,524 +500,134 @@ body {
   </div>
 </div>
 
-<audio id="audioPlayer" preload="auto"></audio>
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT -->
+  <div class="left">
+    <div class="tip-area">
+      <div class="tip-lbl">▶ TIPP</div>
+      <div class="tip-txt" id="tipTxt"><span>Lade Tipps...</span></div>
+    </div>
+    <div class="info-row">
+      <div class="info-box">
+        <div class="info-val" id="playerCount">--/32</div>
+        <div class="info-key">Spieler</div>
+      </div>
+      <div class="info-box">
+        <div class="info-val" id="mapDisp" style="font-size:0.85rem;">--</div>
+        <div class="info-key">Map</div>
+      </div>
+      <div class="info-box">
+        <div class="info-val">TTT</div>
+        <div class="info-key">Modus</div>
+      </div>
+      <div class="info-box">
+        <div class="info-val" id="pingDisp">--</div>
+        <div class="info-key">Ping ms</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+
+    <div class="panel-hdr">NOW PLAYING</div>
+    <div class="music-block">
+      <div class="now-track" id="trackName">Lade Musik...</div>
+      <div class="now-artist" id="trackArtist">--</div>
+      <div class="mus-prog" id="musTrack">
+        <div class="mus-prog-fill" id="musFill"></div>
+      </div>
+      <div class="mus-time">
+        <span id="tNow">0:00</span>
+        <span id="tTot">0:00</span>
+      </div>
+    </div>
+
+    <div class="panel-hdr">VISUALISER</div>
+    <div class="vis-block">
+      <div class="vis-bars" id="visBars"></div>
+    </div>
+
+    <div class="panel-hdr">SPIELER ONLINE</div>
+    <div class="players-block">
+      <div class="players-scroll" id="playerList">
+        <div class="p-empty">&gt; Warte auf<br>&gt; Serverdaten...<br>&gt; _</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<audio id="aud" preload="auto"></audio>
 
 <script>
-
-// ── OCEAN BACKGROUND ──
-(function() {
-  const canvas = document.getElementById('oceanCanvas');
-  const ctx = canvas.getContext('2d');
-
-  function resize() {
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  const PINK   = '#ff2d78';
-  const PURPLE = '#b400ff';
-  const CYAN   = '#00f5ff';
-  const YELLOW = '#ffe600';
-
-  // Sun params
-  const sun = { r: 90 };
-
-  // Wave layers
-  const waveLayers = [
-    { amp: 22, freq: 0.012, speed: 0.018, yOff: 0.72, color: 'rgba(90,0,160,0.7)',  lineW: 2 },
-    { amp: 18, freq: 0.016, speed: 0.024, yOff: 0.75, color: 'rgba(140,0,200,0.6)', lineW: 1.5 },
-    { amp: 14, freq: 0.020, speed: 0.030, yOff: 0.78, color: 'rgba(180,0,255,0.5)', lineW: 1.5 },
-    { amp: 12, freq: 0.025, speed: 0.038, yOff: 0.80, color: 'rgba(210,0,255,0.4)', lineW: 1 },
-    { amp: 10, freq: 0.030, speed: 0.045, yOff: 0.83, color: 'rgba(0,245,255,0.25)',lineW: 1 },
-    { amp:  8, freq: 0.038, speed: 0.055, yOff: 0.86, color: 'rgba(0,200,220,0.2)', lineW: 1 },
-    { amp:  6, freq: 0.045, speed: 0.065, yOff: 0.89, color: 'rgba(0,150,180,0.15)',lineW: 1 },
-    { amp:  5, freq: 0.055, speed: 0.075, yOff: 0.92, color: 'rgba(180,0,255,0.12)',lineW: 1 },
-  ];
-
-  let t = 0;
-
-  function drawSun(W, H) {
-    const cx = W / 2;
-    const sy = H * 0.35;
-    const r  = sun.r;
-
-    // Glow rings
-    for (let i = 4; i >= 1; i--) {
-      const g = ctx.createRadialGradient(cx, sy, r * 0.8, cx, sy, r * (1 + i * 0.5));
-      g.addColorStop(0, 'rgba(255,45,120,0.12)');
-      g.addColorStop(1, 'rgba(180,0,255,0)');
-      ctx.beginPath();
-      ctx.arc(cx, sy, r * (1 + i * 0.5), 0, Math.PI * 2);
-      ctx.fillStyle = g;
-      ctx.fill();
-    }
-
-    // Sun body gradient
-    const grad = ctx.createLinearGradient(cx, sy - r, cx, sy + r);
-    grad.addColorStop(0.0, YELLOW);
-    grad.addColorStop(0.45, PINK);
-    grad.addColorStop(1.0, PURPLE);
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, sy, r, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.fillStyle = grad;
-    ctx.fillRect(cx - r, sy - r, r * 2, r * 2);
-
-    // Horizontal lines (lower half)
-    ctx.fillStyle = '#0a0010';
-    const lineData = [
-      {top: 0.52, h: 0.04},
-      {top: 0.60, h: 0.035},
-      {top: 0.67, h: 0.03},
-      {top: 0.74, h: 0.025},
-      {top: 0.80, h: 0.02},
-      {top: 0.86, h: 0.018},
-      {top: 0.91, h: 0.015},
-    ];
-    lineData.forEach(l => {
-      ctx.fillRect(cx - r, sy - r + l.top * r * 2, r * 2, l.h * r * 2);
-    });
-    ctx.restore();
-
-    // ── TEXT ÜBER DER SONNE ──
-    // "HOUSE OF CRAZY PEOPLE" gesplittet in zwei Zeilen, über der Sonne
-    ctx.save();
-
-    // Flackern-Effekt
-    const flicker = 0.85 + Math.sin(t * 13.7) * 0.03 + Math.sin(t * 7.3) * 0.02;
-
-    // Obere Zeile: "HOUSE OF"
-    const fontSize1 = Math.round(r * 0.38);
-    ctx.font = `900 ${fontSize1}px 'Press Start 2P', monospace`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    // Outer glow cyan
-    ctx.shadowColor = '#00f5ff';
-    ctx.shadowBlur = 22;
-    ctx.globalAlpha = flicker;
-    ctx.fillStyle = '#00f5ff';
-    ctx.fillText('HOUSE OF', cx, sy - r * 1.52);
-
-    // Inner bright white
-    ctx.shadowColor = '#ffffff';
-    ctx.shadowBlur = 8;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText('HOUSE OF', cx, sy - r * 1.52);
-
-    // Untere Zeile: "CRAZY PEOPLE" – größer, pink/gelb
-    const fontSize2 = Math.round(r * 0.44);
-    ctx.font = `900 ${fontSize2}px 'Press Start 2P', monospace`;
-
-    // Outer glow pink
-    ctx.shadowColor = '#ff2d78';
-    ctx.shadowBlur = 28;
-    ctx.globalAlpha = flicker;
-    ctx.fillStyle = '#ff2d78';
-    ctx.fillText('CRAZY PEOPLE', cx, sy - r * 1.18);
-
-    // Inner bright
-    ctx.shadowColor = '#ffe600';
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = '#ffe600';
-    ctx.fillText('CRAZY PEOPLE', cx, sy - r * 1.18);
-
-    // Dekorative Linie unter dem Text
-    ctx.shadowColor = '#b400ff';
-    ctx.shadowBlur = 12;
-    ctx.strokeStyle = 'rgba(180,0,255,0.7)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(cx - r * 1.1, sy - r * 0.98);
-    ctx.lineTo(cx + r * 1.1, sy - r * 0.98);
-    ctx.stroke();
-
-    ctx.restore();
-  }
-
-  function drawSky(W, H) {
-    const grad = ctx.createLinearGradient(0, 0, 0, H * 0.75);
-    grad.addColorStop(0.0,  '#0a0010');
-    grad.addColorStop(0.35, '#150025');
-    grad.addColorStop(0.65, '#200035');
-    grad.addColorStop(1.0,  '#0a0010');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, W, H);
-  }
-
-  function drawOcean(W, H) {
-    // Ocean fill below first wave
-    const firstY = H * waveLayers[0].yOff;
-    const oceanGrad = ctx.createLinearGradient(0, firstY, 0, H);
-    oceanGrad.addColorStop(0.0, 'rgba(60,0,100,0.95)');
-    oceanGrad.addColorStop(0.4, 'rgba(20,0,50,0.98)');
-    oceanGrad.addColorStop(1.0, '#0a0010');
-    ctx.fillStyle = oceanGrad;
-    ctx.fillRect(0, firstY, W, H - firstY);
-
-    // Sun reflection on ocean
-    const cx = W / 2;
-    const refGrad = ctx.createLinearGradient(cx, firstY, cx, H * 0.9);
-    refGrad.addColorStop(0, 'rgba(255,45,120,0.15)');
-    refGrad.addColorStop(1, 'rgba(255,45,120,0)');
-    ctx.fillStyle = refGrad;
-    // Shimmering reflection column
-    const refW = 80 + Math.sin(t * 1.2) * 20;
-    ctx.beginPath();
-    ctx.moveTo(cx - refW, firstY);
-    ctx.lineTo(cx + refW, firstY);
-    ctx.lineTo(cx + 20, H * 0.95);
-    ctx.lineTo(cx - 20, H * 0.95);
-    ctx.closePath();
-    ctx.fill();
-
-    // Wave lines
-    waveLayers.forEach(layer => {
-      const baseY = H * layer.yOff;
-      ctx.beginPath();
-      ctx.moveTo(0, baseY);
-      for (let x = 0; x <= W; x += 2) {
-        const y = baseY + Math.sin(x * layer.freq + t * layer.speed * 60) * layer.amp
-                        + Math.sin(x * layer.freq * 1.7 + t * layer.speed * 40) * layer.amp * 0.4;
-        ctx.lineTo(x, y);
-      }
-      ctx.lineTo(W, H);
-      ctx.lineTo(0, H);
-      ctx.closePath();
-      ctx.fillStyle = layer.color;
-      ctx.fill();
-
-      // Wave highlight line
-      ctx.beginPath();
-      ctx.moveTo(0, H * layer.yOff);
-      for (let x = 0; x <= W; x += 2) {
-        const y = baseY + Math.sin(x * layer.freq + t * layer.speed * 60) * layer.amp
-                        + Math.sin(x * layer.freq * 1.7 + t * layer.speed * 40) * layer.amp * 0.4;
-        ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = layer.color.replace(/[\d.]+\)$/, '0.9)');
-      ctx.lineWidth = layer.lineW;
-      ctx.stroke();
-    });
-
-
-  }
-
-
-  function drawMountains(W, H) {
-    const sunY = H * 0.42;
-    const horizonY = H * 0.62;
-
-    // Back mountains (darker, behind sun)
-    const backPeaks = [
-      {x: 0.05, h: 0.13}, {x: 0.18, h: 0.20}, {x: 0.30, h: 0.15},
-      {x: 0.42, h: 0.24}, {x: 0.55, h: 0.18}, {x: 0.67, h: 0.22},
-      {x: 0.80, h: 0.16}, {x: 0.92, h: 0.19}, {x: 1.02, h: 0.12}
-    ];
-
-    ctx.beginPath();
-    ctx.moveTo(0, horizonY);
-    backPeaks.forEach((p, i) => {
-      const px = W * p.x;
-      const py = horizonY - H * p.h;
-      if (i === 0) ctx.lineTo(px, py);
-      else {
-        const prev = backPeaks[i - 1];
-        const mx = W * (prev.x + p.x) / 2;
-        ctx.quadraticCurveTo(W * prev.x, horizonY - H * prev.h, mx, (horizonY - H * prev.h + horizonY - H * p.h) / 2);
-        ctx.quadraticCurveTo(mx, horizonY - H * p.h, px, py);
-      }
-    });
-    ctx.lineTo(W, horizonY);
-    ctx.closePath();
-    const backGrad = ctx.createLinearGradient(0, horizonY - H * 0.24, 0, horizonY);
-    backGrad.addColorStop(0, '#1a0030');
-    backGrad.addColorStop(1, '#0d0020');
-    ctx.fillStyle = backGrad;
-    ctx.fill();
-
-    // Mountain edge glow (pink/purple outline)
-    ctx.beginPath();
-    ctx.moveTo(0, horizonY);
-    backPeaks.forEach((p, i) => {
-      const px = W * p.x;
-      const py = horizonY - H * p.h;
-      if (i === 0) ctx.lineTo(px, py);
-      else {
-        const prev = backPeaks[i - 1];
-        const mx = W * (prev.x + p.x) / 2;
-        ctx.quadraticCurveTo(W * prev.x, horizonY - H * prev.h, mx, (horizonY - H * prev.h + horizonY - H * p.h) / 2);
-        ctx.quadraticCurveTo(mx, horizonY - H * p.h, px, py);
-      }
-    });
-    ctx.strokeStyle = 'rgba(180,0,255,0.6)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // Front mountains (darker silhouette)
-    const frontPeaks = [
-      {x: -0.02, h: 0.10}, {x: 0.10, h: 0.17}, {x: 0.22, h: 0.12},
-      {x: 0.35, h: 0.19}, {x: 0.50, h: 0.08}, {x: 0.65, h: 0.16},
-      {x: 0.78, h: 0.20}, {x: 0.90, h: 0.13}, {x: 1.02, h: 0.15}
-    ];
-
-    ctx.beginPath();
-    ctx.moveTo(0, horizonY);
-    frontPeaks.forEach((p, i) => {
-      const px = W * p.x;
-      const py = horizonY - H * p.h;
-      if (i === 0) ctx.lineTo(px, py);
-      else {
-        const prev = frontPeaks[i - 1];
-        const mx = W * (prev.x + p.x) / 2;
-        ctx.quadraticCurveTo(W * prev.x, horizonY - H * prev.h, mx, (horizonY - H * prev.h + horizonY - H * p.h) / 2);
-        ctx.quadraticCurveTo(mx, horizonY - H * p.h, px, py);
-      }
-    });
-    ctx.lineTo(W, horizonY);
-    ctx.closePath();
-    const frontGrad = ctx.createLinearGradient(0, horizonY - H * 0.20, 0, horizonY);
-    frontGrad.addColorStop(0, '#0d0020');
-    frontGrad.addColorStop(1, '#080015');
-    ctx.fillStyle = frontGrad;
-    ctx.fill();
-
-    // Front mountain pink glow edge
-    ctx.beginPath();
-    ctx.moveTo(0, horizonY);
-    frontPeaks.forEach((p, i) => {
-      const px = W * p.x;
-      const py = horizonY - H * p.h;
-      if (i === 0) ctx.lineTo(px, py);
-      else {
-        const prev = frontPeaks[i - 1];
-        const mx = W * (prev.x + p.x) / 2;
-        ctx.quadraticCurveTo(W * prev.x, horizonY - H * prev.h, mx, (horizonY - H * prev.h + horizonY - H * p.h) / 2);
-        ctx.quadraticCurveTo(mx, horizonY - H * p.h, px, py);
-      }
-    });
-    ctx.strokeStyle = 'rgba(255,45,120,0.7)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
-
-
-  // Shooting stars
-  const shootingStars = Array.from({length: 5}, () => ({
-    x: Math.random() * 0.4,
-    y: Math.random() * 0.3,
-    speed: 0.12 + Math.random() * 0.18,
-    len: 0.10 + Math.random() * 0.10,
-    delay: Math.random() * 10,
-    active: false
-  }));
-
-  function drawExtras(W, H, t) {
-    const horizonY = H * 0.62;
-    const cx = W / 2;
-
-    // ── SHOOTING STARS (links oben → rechts unten) ──
-    shootingStars.forEach(s => {
-      const lt = (t + s.delay) % 10;
-      if (lt > 6) return;
-      const prog = lt / 6;
-      // Start oben links, Ende rechts unten
-      const ex = W * (s.x + prog * s.speed * 2.5);
-      const ey = H * s.y + prog * H * 0.12;
-      const sx = ex - W * s.len;
-      const sy2 = ey - H * s.len * 0.4;
-      const alpha = Math.sin(prog * Math.PI);
-      const g = ctx.createLinearGradient(sx, sy2, ex, ey);
-      g.addColorStop(0, `rgba(255,255,255,0)`);
-      g.addColorStop(1, `rgba(255,255,255,${alpha * 0.95})`);
-      ctx.beginPath();
-      ctx.moveTo(sx, sy2);
-      ctx.lineTo(ex, ey);
-      ctx.strokeStyle = g;
-      ctx.lineWidth = 1.8;
-      ctx.shadowColor = '#fff';
-      ctx.shadowBlur = 8;
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-    });
-
-    // ── PALM TREES ── (left and right)
-    function drawPalm(px, py, scale, flip) {
-      ctx.save();
-      ctx.translate(px, py);
-      if (flip) ctx.scale(-1, 1);
-
-      // Trunk
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.bezierCurveTo(
-        scale * 8,  -scale * 30,
-        scale * -5, -scale * 60,
-        scale * 10, -scale * 100
-      );
-      ctx.strokeStyle = '#2a0040';
-      ctx.lineWidth = scale * 7;
-      ctx.stroke();
-      ctx.strokeStyle = 'rgba(255,45,120,0.6)';
-      ctx.lineWidth = scale * 2.5;
-      ctx.stroke();
-
-      // Fronds
-      const fronds = [
-        {ax:-20, ay:-10, bx:-50, by:-50, cx:-80, cy:-30},
-        {ax:-15, ay:-15, bx:-55, by:-70, cx:-40, cy:-90},
-        {ax:0,   ay:-20, bx:0,   by:-80, cx:30,  cy:-100},
-        {ax:15,  ay:-15, bx:55,  by:-70, cx:70,  cy:-50},
-        {ax:20,  ay:-10, bx:60,  by:-40, cx:90,  cy:-20},
-      ];
-      fronds.forEach(f => {
-        ctx.beginPath();
-        ctx.moveTo(scale*10, scale*-100);
-        ctx.bezierCurveTo(
-          scale*(10+f.ax), scale*(-100+f.ay),
-          scale*(10+f.bx), scale*(-100+f.by),
-          scale*(10+f.cx), scale*(-100+f.cy)
-        );
-        ctx.strokeStyle = '#0d0020';
-        ctx.lineWidth = scale * 5;
-        ctx.stroke();
-        ctx.strokeStyle = 'rgba(180,0,255,0.7)';
-        ctx.lineWidth = scale * 2.5;
-        ctx.stroke();
-      });
-      ctx.restore();
-    }
-
-    // Left palms
-    drawPalm(W * 0.06, horizonY, 0.9, false);
-    drawPalm(W * 0.13, horizonY + 8, 0.7, false);
-    // Right palms (flipped)
-    drawPalm(W * 0.94, horizonY, 0.9, true);
-    drawPalm(W * 0.87, horizonY + 8, 0.7, true);
-
-    // ── BIRDS ── (simple V shapes flying)
-    const birdGroup = [
-      {ox: 0.2, oy: 0.12, speed: 0.022},
-      {ox: 0.3, oy: 0.08, speed: 0.018},
-      {ox: 0.15, oy: 0.16, speed: 0.025},
-      {ox: 0.25, oy: 0.10, speed: 0.020},
-      {ox: 0.35, oy: 0.14, speed: 0.016},
-    ];
-    birdGroup.forEach((b, i) => {
-      const bx = ((b.ox + t * b.speed) % 1.3 - 0.15) * W;
-      const by = H * b.oy + Math.sin(t * 2 + i) * 8;
-      const size = 5 + i * 1.5;
-      ctx.beginPath();
-      ctx.moveTo(bx - size, by - size * 0.4);
-      ctx.quadraticCurveTo(bx, by - size * 0.8, bx + size, by - size * 0.4);
-      ctx.strokeStyle = 'rgba(180,0,255,0.55)';
-      ctx.lineWidth = 1.5;
-      ctx.shadowColor = '#b400ff';
-      ctx.shadowBlur = 4;
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-    });
-
-    // ── HORIZONTAL NEON LINES across sky (retro vibe) ──
-    const lineYs = [0.20, 0.25, 0.28];
-    lineYs.forEach((ly, i) => {
-      const alpha = 0.06 + Math.sin(t * 0.8 + i) * 0.02;
-      ctx.beginPath();
-      ctx.moveTo(0, H * ly);
-      ctx.lineTo(W, H * ly);
-      ctx.strokeStyle = `rgba(180,0,255,${alpha})`;
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    });
-  }
-
-  function frame(ts) {
-    t = ts * 0.001;
-    const W = canvas.width;
-    const H = canvas.height;
-    ctx.clearRect(0, 0, W, H);
-    drawSky(W, H);
-    drawSun(W, H);
-    drawMountains(W, H);
-    drawExtras(W, H, t);
-    drawOcean(W, H);
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-})();
-
 // ── STARS ──
-const starsEl = document.getElementById('stars');
-for (let i = 0; i < 70; i++) {
-  const s = document.createElement('div');
-  s.className = 'star';
-  s.style.left = Math.random() * 100 + '%';
-  s.style.top  = Math.random() * 50 + '%';
-  s.style.setProperty('--d', (1.5 + Math.random() * 3) + 's');
-  s.style.setProperty('--dl', Math.random() * 3 + 's');
-  s.style.opacity = Math.random();
-  starsEl.appendChild(s);
-}
+var starEl = document.getElementById('stars');
+var starData = [
+  [2,120,40],[1,250,80],[2,380,25],[1,500,65],[2,630,18],[1,770,85],[2,910,42],[1,1060,72],
+  [1,80,155],[2,310,175],[1,460,130],[2,610,195],[1,820,158],[2,970,185],[1,1130,142],
+  [2,170,248],[1,340,275],[2,530,238],[1,720,295],[2,880,258],[1,1040,285],[2,195,325],
+  [1,55,360],[2,290,380],[1,480,345],[2,665,375],[1,855,342],[2,1010,368],[1,1175,350],
+  [3,230,55],[3,580,38],[3,950,72],[3,1160,48],[3,370,175],[3,720,148]
+];
+starData.forEach(function(s) {
+  var el = document.createElement('div');
+  el.className = 'star';
+  el.style.cssText = 'width:'+s[0]+'px;height:'+s[0]+'px;left:'+s[1]+'px;top:'+s[2]+'px;--d:'+(2+Math.random()*3)+'s;--dl:'+(Math.random()*3)+'s;opacity:'+(0.4+Math.random()*0.6);
+  starEl.appendChild(el);
+});
 
 // ── URL PARAMS ──
-const params = new URLSearchParams(window.location.search);
-if (params.get('map')) {
-  const m = params.get('map').replace('ttt_','').replace(/_/g,' ').toUpperCase();
-  document.getElementById('mapDisp').textContent = m;
-}
-if (params.get('maxplayers')) document.getElementById('playerCount').textContent = '--/' + params.get('maxplayers');
+var params = new URLSearchParams(window.location.search);
+if (params.get('map')) document.getElementById('mapDisp').textContent = params.get('map').replace('ttt_','').replace(/_/g,' ').toUpperCase();
+if (params.get('maxplayers')) document.getElementById('playerCount').textContent = '--/'+params.get('maxplayers');
 
 // ── GMOD CALLBACKS ──
-let currentPct = 0;
-function setProgress(p) {
-  if (p > currentPct) {
-    currentPct = p;
-    document.getElementById('pbar').style.width = p + '%';
-    document.getElementById('pctTxt').textContent = p + '%';
+var curPct = 0;
+function setPct(p) {
+  if (p > curPct) {
+    curPct = p;
+    document.getElementById('pbar').style.width = p+'%';
+    document.getElementById('pctTxt').textContent = p+'%';
   }
 }
-window.GameDetails = function(name, url, map, max) {
-  if (name) document.getElementById('serverNameDisp').textContent = name.toUpperCase();
-  if (map) {
-    const m = map.replace('ttt_','').replace(/_/g,' ').toUpperCase();
-    document.getElementById('mapDisp').textContent = m;
-      }
-  if (max) document.getElementById('playerCount').textContent = '--/' + max;
+window.GameDetails = function(name,url,map,max) {
+  if (name) document.getElementById('serverName').textContent = name.toUpperCase();
+  if (map)  document.getElementById('mapDisp').textContent = map.replace('ttt_','').replace(/_/g,' ').toUpperCase();
+  if (max)  document.getElementById('playerCount').textContent = '--/'+max;
 };
-window.SetFilesNeeded = function(n) {}; // downloads removed
-let fallbackOn = true;
-const statusProg = {'Retrieving':5,'Sending client':15,'Parsing':20,'Receiving':30,'Checking':40,'Loading':55,'Requesting':60,'Downloading':70,'Starting Lua':80,'Settling':90,'Done':100};
+var fbOn = true;
+var sProg = {Retrieving:5,'Sending client':15,Parsing:20,Receiving:30,Checking:40,Loading:55,Requesting:60,Downloading:70,'Starting Lua':80,Settling:90,Done:100};
 window.SetStatusChanged = function(s) {
-  fallbackOn = false;
+  fbOn = false;
   document.getElementById('loadMsg').textContent = s.toUpperCase();
-  document.getElementById('statusPill').textContent = s.toUpperCase();
-  for (const [k,v] of Object.entries(statusProg)) if (s.includes(k)) { setProgress(v); break; }
+  document.getElementById('statusTxt').textContent = s.toUpperCase();
+  for (var k in sProg) { if (s.indexOf(k)!==-1) { setPct(sProg[k]); break; } }
 };
+window.SetFilesNeeded = function(){};
 
 // ── PING ──
-setInterval(() => { document.getElementById('pingDisp').textContent = 15 + Math.floor(Math.random()*80); }, 2500);
+setInterval(function(){ document.getElementById('pingDisp').textContent = 15+Math.floor(Math.random()*80); }, 2500);
 
 // ── FALLBACK PROGRESS ──
-let fbPct = 0, fbMsgI = 0;
-const fbMsgs = ['VERBINDE MIT SERVER...','SERVER INFO ABRUFEN...','MAP PRÜFEN...','RESSOURCEN LADEN...','LUA STARTEN...','FAST FERTIG...'];
-const msgEl = document.getElementById('loadMsg');
-const fbIv = setInterval(() => {
-  if (!fallbackOn) { clearInterval(fbIv); return; }
-  fbPct = Math.min(95, fbPct + 0.3 + Math.random() * 1.2);
-  if (fbPct > currentPct) {
-    document.getElementById('pbar').style.width = fbPct + '%';
-    document.getElementById('pctTxt').textContent = Math.floor(fbPct) + '%';
+var fbPct=0, fbMi=0;
+var fbMsgs=['VERBINDE MIT SERVER...','SERVER INFO ABRUFEN...','MAP PRÜFEN...','RESSOURCEN LADEN...','LUA STARTEN...','FAST FERTIG...'];
+var msgEl = document.getElementById('loadMsg');
+var fbIv = setInterval(function(){
+  if (!fbOn) { clearInterval(fbIv); return; }
+  fbPct = Math.min(95, fbPct + 0.3 + Math.random()*1.2);
+  if (fbPct > curPct) {
+    document.getElementById('pbar').style.width = fbPct+'%';
+    document.getElementById('pctTxt').textContent = Math.floor(fbPct)+'%';
   }
-  const mi = Math.min(fbMsgs.length-1, Math.floor((fbPct/95)*(fbMsgs.length-1)));
-  if (mi !== fbMsgI) { fbMsgI = mi; msgEl.textContent = fbMsgs[mi]; }
+  var mi = Math.min(fbMsgs.length-1, Math.floor((fbPct/95)*(fbMsgs.length-1)));
+  if (mi !== fbMi) { fbMi = mi; msgEl.textContent = fbMsgs[mi]; }
 }, 100);
 
 // ── TIPPS ──
-const tips = [
+var tips = [
   'Verrate niemanden... außer du bist der Traitor.',
   'Als Detective: Leichen untersuchen gibt wertvolle Hinweise!',
   'Innocent? Bleib in der Gruppe – Sicherheit in Zahlen.',
@@ -938,206 +637,87 @@ const tips = [
   'Der Detective kann mit DNA-Pistole Mörder identifizieren.',
   'Als Traitor: Vermeide es, allein mit dem Detective zu sein!'
 ];
-let tipI = 0;
-const tipEl = document.getElementById('tipText');
+var ti = 0, tipEl = document.getElementById('tipTxt');
 function showTip() {
   tipEl.style.opacity = '0';
-  setTimeout(() => {
-    tipEl.innerHTML = '&gt; <span>' + tips[tipI] + '</span>';
-    tipEl.style.opacity = '1';
-    tipI = (tipI + 1) % tips.length;
-  }, 300);
+  setTimeout(function(){ tipEl.innerHTML='<span>'+tips[ti]+'</span>'; tipEl.style.opacity='1'; ti=(ti+1)%tips.length; }, 350);
 }
 showTip();
 setInterval(showTip, 7000);
 
-// ── MUSIK PLAYER ──
-// ── MUSIK PLAYER ──
-const audio = document.getElementById('audioPlayer');
-let playlist = [];
-let currentTrack = 0;
-let isPlaying = false;
-let volume = 0.7;
-audio.volume = volume;
+// ── VISUALISER BARS ──
+var vBarsEl = document.getElementById('visBars');
+var vBars = [];
+for (var i=0; i<28; i++) {
+  var b = document.createElement('div');
+  b.className = 'vbar';
+  b.style.height = '8%';
+  vBarsEl.appendChild(b);
+  vBars.push(b);
+}
+
+function animVis(playing) {
+  for (var i=0; i<vBars.length; i++) {
+    var base = i < 8 ? 0.6 : i < 16 ? 0.45 : i < 22 ? 0.3 : 0.2;
+    var h = playing
+      ? Math.max(5, (base * 0.4 + Math.random() * base) * 100)
+      : (15 + Math.sin(Date.now()/800 + i*0.5) * 10);
+    vBars[i].style.height = h + '%';
+  }
+}
+setInterval(function(){ animVis(isPlaying); }, 85);
+
+// ── MUSIK ──
+var aud = document.getElementById('aud');
+var playlist = [], curTrk = 0, isPlaying = false;
 
 fetch('playlist.json')
-  .then(r => r.json())
-  .then(data => {
+  .then(function(r){ return r.json(); })
+  .then(function(data){
     playlist = data;
-    loadTrack(0);
-    // Autoplay versuchen
-    const tryAutoplay = () => {
-      if (!analyserConnected) connectAnalyser();
-      audio.play().then(() => {
-        isPlaying = true;
-        document.getElementById('trackName') && (document.getElementById('btnPlay') && (document.getElementById('btnPlay').textContent = '⏸ PAUSE'));
-      }).catch(() => {
-        // Browser blockiert Autoplay – beim ersten Klick/Taste starten
-        const startOnInteraction = () => {
-          playTrack();
-          document.removeEventListener('click', startOnInteraction);
-          document.removeEventListener('keydown', startOnInteraction);
-        };
-        document.addEventListener('click', startOnInteraction);
-        document.addEventListener('keydown', startOnInteraction);
-      });
-    };
-    setTimeout(tryAutoplay, 300);
+    loadTrk(0);
+    document.addEventListener('click', tryPlay);
+    document.addEventListener('keydown', tryPlay);
+    setTimeout(tryPlay, 500);
   })
-  .catch(() => {
-    playlist = [{ name: "Keine playlist.json", artist: "Erstelle playlist.json!", file: "" }];
-    document.getElementById('trackName').textContent = "Keine playlist.json";
-    document.getElementById('trackArtist').textContent = "Erstelle playlist.json!";
+  .catch(function(){
+    document.getElementById('trackName').textContent = 'Keine playlist.json';
+    document.getElementById('trackArtist').textContent = 'Erstelle playlist.json!';
   });
 
-function loadTrack(idx) {
-  const t = playlist[idx];
+function loadTrk(idx) {
+  var t = playlist[idx];
   if (!t) return;
-  currentTrack = idx;
-  document.getElementById('trackName').textContent = t.name || 'Unbekannt';
-  document.getElementById('trackArtist').textContent = t.artist || '--';
-  if (t.file) { audio.src = t.file; audio.load(); }
+  curTrk = idx;
+  document.getElementById('trackName').textContent = t.name||'Unbekannt';
+  document.getElementById('trackArtist').textContent = t.artist||'--';
+  if (t.file) { aud.src = t.file; aud.load(); }
 }
 
-function playTrack() {
-  if (!playlist[currentTrack] || !playlist[currentTrack].file) return;
-  // Connect to analyser on first play
-  if (!analyserConnected) connectAnalyser();
-  audio.play().then(() => {
+function tryPlay() {
+  if (isPlaying) return;
+  aud.play().then(function(){
     isPlaying = true;
-    document.getElementById('btnPlay').textContent = '⏸ PAUSE';
-  }).catch(() => {});
+    document.removeEventListener('click', tryPlay);
+    document.removeEventListener('keydown', tryPlay);
+  }).catch(function(){});
 }
 
-function togglePlay() {
-  if (isPlaying) {
-    audio.pause();
-    isPlaying = false;
-    document.getElementById('btnPlay').textContent = '▶ PLAY';
-  } else {
-    playTrack();
-  }
-}
-
-function nextTrack() {
-  const next = (currentTrack + 1) % playlist.length;
-  loadTrack(next);
-  if (isPlaying) setTimeout(playTrack, 100);
-}
-
-function setVolume(e) {
-  const rect = document.getElementById('volTrack').getBoundingClientRect();
-  volume = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-  audio.volume = volume;
-  document.getElementById('volFill').style.width = (volume * 100) + '%';
-}
-
-function seekMusic(e) {
-  if (!audio.duration) return;
-  const rect = document.getElementById('progressTrack').getBoundingClientRect();
-  audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
-}
-
-audio.addEventListener('ended', nextTrack);
-
-// ── MUSIC VISUALISER ──
-let audioCtx, analyser, source, dataArray, analyserConnected = false;
-
-function connectAnalyser() {
-  try {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 128;
-    dataArray = new Uint8Array(analyser.frequencyBinCount);
-    source = audioCtx.createMediaElementSource(audio);
-    source.connect(analyser);
-    analyser.connect(audioCtx.destination);
-    analyserConnected = true;
-  } catch(e) {}
-}
-
-let visCanvas, visCtx;
-
-function drawVisualiser() {
-  requestAnimationFrame(drawVisualiser);
-  const W = visCanvas.offsetWidth;
-  const H = visCanvas.offsetHeight;
-  visCanvas.width = W;
-  visCanvas.height = H;
-
-  visCtx.clearRect(0, 0, W, H);
-  visCtx.fillStyle = 'rgba(10,0,16,0.85)';
-  visCtx.fillRect(0, 0, W, H);
-
-  if (!analyserConnected || !isPlaying) {
-    // Idle animation - smooth waves
-    const now = Date.now() / 1000;
-    const bars = 32;
-    const bw = W / bars;
-    for (let i = 0; i < bars; i++) {
-      const h = (Math.sin(now * 2 + i * 0.4) * 0.3 + 0.35) * H * 0.4;
-      const x = i * bw;
-      const hue = i / bars;
-      const r = Math.round(180 + hue * 75);
-      const g = 0;
-      const b = Math.round(255 - hue * 100);
-      visCtx.fillStyle = `rgba(${r},${g},${b},0.4)`;
-      visCtx.fillRect(x + 1, H/2 - h/2, bw - 2, h);
-    }
-    return;
-  }
-
-  analyser.getByteFrequencyData(dataArray);
-  const bars = dataArray.length;
-  const bw = W / bars;
-
-  for (let i = 0; i < bars; i++) {
-    const v = dataArray[i] / 255;
-    const h = v * H * 0.95;
-    const x = i * bw;
-
-    // Color gradient: purple → pink → cyan
-    const t2 = i / bars;
-    const r = Math.round(180 - t2 * 180 + v * 75);
-    const g = Math.round(v * 50);
-    const b = Math.round(255 - t2 * 100 + v * 50);
-
-    // Bar
-    const grad = visCtx.createLinearGradient(0, H, 0, H - h);
-    grad.addColorStop(0, `rgba(${r},${g},${b},0.9)`);
-    grad.addColorStop(1, `rgba(255,255,255,0.6)`);
-    visCtx.fillStyle = grad;
-    visCtx.fillRect(x + 1, H - h, bw - 2, h);
-
-    // Glow top cap
-    visCtx.fillStyle = `rgba(255,255,255,${v * 0.9})`;
-    visCtx.fillRect(x + 1, H - h - 2, bw - 2, 2);
-
-    // Reflection
-    visCtx.fillStyle = `rgba(${r},${g},${b},0.15)`;
-    visCtx.fillRect(x + 1, H - h/4, bw - 2, h/4);
-  }
-}
-window.addEventListener('DOMContentLoaded', () => {
-  visCanvas = document.getElementById('visualiserCanvas');
-  if (visCanvas) {
-    visCtx = visCanvas.getContext('2d');
-    drawVisualiser();
-  }
+aud.addEventListener('ended', function(){
+  var next = (curTrk+1) % playlist.length;
+  loadTrk(next);
+  setTimeout(function(){ aud.play().catch(function(){}); }, 100);
 });
 
-// Progress update
-function formatTime(s) {
-  const m = Math.floor(s / 60);
-  return m + ':' + String(Math.floor(s % 60)).padStart(2,'0');
-}
-setInterval(() => {
-  if (!audio.duration) return;
-  const pct = (audio.currentTime / audio.duration) * 100;
-  document.getElementById('musicProgress').style.width = pct + '%';
-  document.getElementById('timeNow').textContent = formatTime(audio.currentTime);
-  document.getElementById('timeTotal').textContent = formatTime(audio.duration);
+setInterval(function(){
+  if (!aud.duration) return;
+  var pct = (aud.currentTime/aud.duration)*100;
+  document.getElementById('musFill').style.width = pct+'%';
+  document.getElementById('tNow').textContent = fmt(aud.currentTime);
+  document.getElementById('tTot').textContent = fmt(aud.duration);
 }, 500);
+
+function fmt(s) { var m=Math.floor(s/60); return m+':'+('0'+Math.floor(s%60)).slice(-2); }
 </script>
 </body>
 </html>
