@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>House of Crazy People – TTT</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --pink:    #ff2d78;
+  --purple:  #b400ff;
+  --cyan:    #00f5ff;
+  --yellow:  #ffe600;
+  --bg:      #0d0015;
+  --surface: #130020;
+  --grid:    #1a0030;
+  --text:    #f0c0ff;
+  --dim:     #7a4a9a;
+}
+
+@font-face {
+  /* fallback pixel feel via Press Start 2P from Google */
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Press Start 2P', monospace;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  image-rendering: pixelated;
+}
+
+/* ── RETRO GRID BACKGROUND ── */
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, #0d0015 0%, #0d0015 40%, #1a002e 100%);
+  z-index: 0;
+}
+.grid-bg::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 55%;
+  background-image:
+    linear-gradient(rgba(180,0,255,0.25) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180,0,255,0.25) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transform-origin: bottom center;
+  transform: perspective(400px) rotateX(55deg);
+  animation: gridMove 6s linear infinite;
+}
+@keyframes gridMove {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 60px; }
+}
+.grid-bg::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 35%;
+  background: linear-gradient(to top, var(--bg) 0%, transparent 100%);
+}
+
+/* Sun */
+.sun {
+  position: fixed;
+  bottom: 32%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--yellow) 0%, var(--pink) 50%, var(--purple) 100%);
+  box-shadow: 0 0 60px var(--pink), 0 0 120px rgba(180,0,255,0.4);
+  z-index: 1;
+  overflow: hidden;
+}
+.sun-lines {
+  position: absolute;
+  top: 55%;
+  left: 0; right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.sun-line {
+  height: var(--h);
+  background: var(--bg);
+  width: 100%;
+}
+
+/* Stars */
+.stars {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.star {
+  position: absolute;
+  background: #fff;
+  width: 2px; height: 2px;
+  animation: twinkle var(--d, 2s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.1; }
+}
+
+/* Scanlines */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px, transparent 3px,
+    rgba(0,0,0,0.2) 3px, rgba(0,0,0,0.2) 4px
+  );
+  z-index: 50;
+  pointer-events: none;
+}
+
+/* CRT glow edges */
+.crt {
+  position: fixed;
+  inset: 0;
+  box-shadow: inset 0 0 80px rgba(180,0,255,0.15), inset 0 0 20px rgba(0,245,255,0.08);
+  z-index: 51;
+  pointer-events: none;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: rgba(13,0,21,0.85);
+  border-bottom: 3px solid var(--purple);
+  box-shadow: 0 0 20px var(--purple), 0 4px 0 var(--pink);
+  flex-shrink: 0;
+}
+
+.server-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  color: var(--cyan);
+  text-shadow: 0 0 10px var(--cyan), 2px 2px 0 var(--purple);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.05em;
+}
+.server-logo {
+  height: 38px;
+  width: 38px;
+  object-fit: cover;
+  border: 2px solid var(--pink);
+  image-rendering: pixelated;
+  box-shadow: 0 0 8px var(--pink);
+}
+
+.status-pill {
+  font-family: 'VT323', monospace;
+  font-size: 1.1rem;
+  color: var(--pink);
+  text-shadow: 0 0 8px var(--pink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0.4; } }
+
+/* ── MAIN ── */
+.main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  position: relative;
+  z-index: 5;
+  overflow: hidden;
+}
+
+/* ── HERO ── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px 28px 24px;
+  position: relative;
+}
+
+.hero-cat {
+  position: absolute;
+  bottom: 80px;
+  right: 20px;
+  height: 180px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 20px var(--pink)) drop-shadow(0 0 40px var(--purple));
+  animation: catFloat 3s ease-in-out infinite;
+  z-index: 3;
+}
+@keyframes catFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-10px) scale(1.03); }
+}
+
+.hero-content { position: relative; z-index: 4; }
+
+.pixel-badge {
+  display: inline-block;
+  font-family: 'VT323', monospace;
+  font-size: 1rem;
+  color: var(--yellow);
+  text-shadow: 0 0 8px var(--yellow);
+  letter-spacing: 0.1em;
+  border: 2px solid var(--yellow);
+  padding: 2px 8px;
+  margin-bottom: 10px;
+  box-shadow: 2px 2px 0 rgba(255,230,0,0.3);
+}
+
+.hero h1 {
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(1rem, 2.8vw, 1.8rem);
+  line-height: 1.6;
+  color: #fff;
+  text-shadow:
+    3px 3px 0 var(--purple),
+    0 0 20px var(--pink),
+    0 0 40px rgba(255,45,120,0.4);
+}
+.hero h1 .glow-pink { color: var(--pink); text-shadow: 0 0 20px var(--pink), 3px 3px 0 #7b0040; }
+.hero h1 .glow-cyan { color: var(--cyan); text-shadow: 0 0 20px var(--cyan), 3px 3px 0 #006080; }
+
+.hero-sub {
+  font-family: 'VT323', monospace;
+  font-size: 1.1rem;
+  color: var(--dim);
+  margin-top: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+}
+
+/* Pixel decorations */
+.pixel-deco {
+  position: absolute;
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+  color: var(--purple);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ── RIGHT PANEL ── */
+.panel {
+  border-left: 3px solid var(--purple);
+  box-shadow: -4px 0 20px rgba(180,0,255,0.3);
+  background: rgba(13,0,21,0.7);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 5;
+}
+
+.panel-section {
+  padding: 14px 16px;
+  border-bottom: 2px solid var(--grid);
+  flex-shrink: 0;
+}
+
+.section-label {
+  font-size: 0.45rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.section-label::before { content: '▶'; font-size: 0.5rem; }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat {
+  background: var(--grid);
+  border: 2px solid var(--purple);
+  padding: 8px 10px;
+  box-shadow: inset 0 0 10px rgba(180,0,255,0.15), 2px 2px 0 var(--purple);
+}
+.stat-val {
+  font-family: 'VT323', monospace;
+  font-size: 1.4rem;
+  color: var(--pink);
+  text-shadow: 0 0 8px var(--pink);
+  line-height: 1;
+}
+.stat-key {
+  font-size: 0.35rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-top: 2px;
+}
+
+/* Players */
+.players-wrap { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.players-inner { flex: 1; overflow-y: auto; padding: 10px 16px; }
+.players-inner::-webkit-scrollbar { width: 4px; }
+.players-inner::-webkit-scrollbar-track { background: var(--bg); }
+.players-inner::-webkit-scrollbar-thumb { background: var(--purple); }
+
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(180,0,255,0.15);
+  animation: slideIn 0.3s ease both;
+  animation-delay: calc(var(--i) * 0.06s);
+}
+@keyframes slideIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; } }
+
+.player-avatar {
+  width: 22px; height: 22px;
+  border: 2px solid var(--color, var(--purple));
+  background: rgba(180,0,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.45rem;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px var(--color, var(--purple));
+  image-rendering: pixelated;
+}
+.player-name {
+  font-family: 'VT323', monospace;
+  font-size: 0.9rem;
+  color: var(--text);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.player-ping {
+  font-family: 'VT323', monospace;
+  font-size: 0.8rem;
+  color: var(--dim);
+}
+.player-ping.good { color: #00ff88; text-shadow: 0 0 6px #00ff88; }
+.player-ping.ok   { color: var(--yellow); }
+.player-ping.bad  { color: var(--pink); }
+
+/* ── BOTTOM ── */
+.bottom {
+  position: relative;
+  z-index: 10;
+  padding: 10px 20px 12px;
+  background: rgba(13,0,21,0.92);
+  border-top: 3px solid var(--pink);
+  box-shadow: 0 -4px 0 var(--purple), 0 0 30px rgba(255,45,120,0.3);
+  flex-shrink: 0;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+.progress-msg {
+  font-size: 0.4rem;
+  letter-spacing: 0.1em;
+  color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+}
+.progress-pct {
+  font-family: 'VT323', monospace;
+  font-size: 1.4rem;
+  color: var(--pink);
+  text-shadow: 0 0 10px var(--pink);
+}
+
+.progress-track {
+  width: 100%;
+  height: 12px;
+  background: var(--grid);
+  border: 2px solid var(--purple);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(180,0,255,0.3);
+  image-rendering: pixelated;
+}
+
+/* Pixel-style progress */
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--pink) 0px, var(--pink) 8px,
+    var(--purple) 8px, var(--purple) 16px
+  );
+  transition: width 0.25s steps(10);
+  box-shadow: 0 0 15px var(--pink);
+  position: relative;
+}
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0; width: 4px;
+  background: #fff;
+  animation: cursor 0.5s step-end infinite;
+}
+@keyframes cursor { 50% { opacity: 0; } }
+
+.tip {
+  margin-top: 6px;
+  font-family: 'VT323', monospace;
+  font-size: 0.85rem;
+  color: var(--dim);
+  letter-spacing: 0.03em;
+}
+.tip span { color: var(--yellow); }
+
+/* Floating pixel symbols */
+@keyframes floatPixel {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 0.5; }
+  100% { transform: translateY(-70vh) rotate(360deg); opacity: 0; }
+}
+.fpx {
+  position: fixed;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.6rem;
+  color: var(--purple);
+  pointer-events: none;
+  animation: floatPixel var(--d, 8s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  left: var(--x, 50%);
+  bottom: 80px;
+  z-index: 2;
+  text-shadow: 0 0 6px var(--purple);
+  opacity: 0;
+}
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<!-- Sun -->
+<div class="sun">
+  <div class="sun-lines">
+    <div class="sun-line" style="--h:6px"></div>
+    <div class="sun-line" style="--h:5px; margin-top:5px"></div>
+    <div class="sun-line" style="--h:4px; margin-top:6px"></div>
+    <div class="sun-line" style="--h:4px; margin-top:7px"></div>
+    <div class="sun-line" style="--h:3px; margin-top:8px"></div>
+    <div class="sun-line" style="--h:3px; margin-top:9px"></div>
+  </div>
+</div>
+
+<div class="stars" id="stars"></div>
+<div class="scanlines"></div>
+<div class="crt"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="server-name">
+    <img class="server-logo" src="/mnt/user-data/uploads/051b1076-5d8a-44e9-a7b2-ed2bd9b91b4f_popcat_white.gif" alt="Logo">
+    HOUSE OF CRAZY PEOPLE
+  </div>
+  <div class="status-pill">● CONNECTING...</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="hero">
+    <!-- Pixel decorations -->
+    <div class="pixel-deco" style="top:15%;left:5%">✦ ✦ ✦</div>
+    <div class="pixel-deco" style="top:25%;left:60%;color:var(--pink);opacity:0.3">◆ ◆</div>
+    <div class="pixel-deco" style="top:10%;right:30%;color:var(--cyan);opacity:0.25;font-size:1rem">★ ★ ★ ★</div>
+
+    <!-- Popcat -->
+    <img class="hero-cat"
+         src="/mnt/user-data/uploads/051b1076-5d8a-44e9-a7b2-ed2bd9b91b4f_popcat_white.gif"
+         alt="Server Mascot">
+
+    <div class="hero-content">
+      <div class="pixel-badge">&gt;&gt; TTT SERVER &lt;&lt;</div>
+      <h1>
+        TROUBLE<br>
+        IN <span class="glow-pink">TERRORIST</span><br>
+        <span class="glow-cyan">TOWN</span>
+      </h1>
+      <div class="hero-sub">
+        &gt; WÄHLE DEINE SEITE<br>
+        &gt; INNOCENT / TRAITOR / DETECTIVE<br>
+        &gt; NIEMAND IST SICHER...
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="panel">
+    <div class="panel-section">
+      <div class="section-label">SERVER INFO</div>
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-val" id="playerCount">0/32</div>
+          <div class="stat-key">Spieler</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val">MITTE</div>
+          <div class="stat-key">Runde</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" style="font-size:0.8rem">67thWay</div>
+          <div class="stat-key">Map</div>
+        </div>
+        <div class="stat">
+          <div class="stat-val" id="pingDisp">--</div>
+          <div class="stat-key">Ping ms</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <div class="section-label">SPIELER ONLINE</div>
+    </div>
+    <div class="players-wrap">
+      <div class="players-inner" id="playerList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM PROGRESS -->
+<div class="bottom">
+  <div class="progress-header">
+    <div class="progress-msg" id="loadMsg">INITIALISIERE SYSTEM...</div>
+    <div class="progress-pct" id="pctTxt">0%</div>
+  </div>
+  <div class="progress-track">
+    <div class="progress-bar" id="pbar"></div>
+  </div>
+  <div class="tip" id="tip">&gt; TIPP: <span>Verrate niemanden... außer du bist der Traitor.</span></div>
+</div>
+
+<!-- Floating pixel symbols -->
+<div id="floaters"></div>
+
+<script>
+// Stars
+const starsEl = document.getElementById('stars');
+for (let i = 0; i < 80; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  s.style.left = Math.random() * 100 + '%';
+  s.style.top  = Math.random() * 55 + '%';
+  s.style.setProperty('--d', (1.5 + Math.random() * 3) + 's');
+  s.style.setProperty('--delay', Math.random() * 3 + 's');
+  s.style.opacity = Math.random();
+  starsEl.appendChild(s);
+}
+
+// Floating pixel symbols
+const symbols = ['★','◆','✦','▲','●','♦','✿','◉'];
+const floatEl = document.getElementById('floaters');
+for (let i = 0; i < 20; i++) {
+  const f = document.createElement('div');
+  f.className = 'fpx';
+  f.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+  f.style.setProperty('--x', Math.random() * 90 + '%');
+  f.style.setProperty('--d', (6 + Math.random() * 10) + 's');
+  f.style.setProperty('--delay', Math.random() * 10 + 's');
+  const hue = Math.random() > 0.5 ? 'var(--pink)' : 'var(--cyan)';
+  f.style.color = hue;
+  floatEl.appendChild(f);
+}
+
+// Players
+const names = [
+  'xXShadow_47','KillerMeow','Det_Hans','TraitorPro99',
+  'InnoDave','RageBuddy','Jens_Mörder','QuietSniper',
+  'GunMan2k','NightOwl','TTT_Legend','RedHerring',
+  'Blondie_K','Noscoper','ZockerKind','PixelCat99'
+];
+const colors = ['#ff2d78','#b400ff','#00f5ff','#ffe600','#ff6ac1','#7b2fff'];
+const pList = document.getElementById('playerList');
+const count = 8 + Math.floor(Math.random() * 14);
+document.getElementById('playerCount').textContent = count + '/32';
+
+for (let i = 0; i < count; i++) {
+  const name = names[i % names.length];
+  const ping = 15 + Math.floor(Math.random() * 200);
+  const col = colors[Math.floor(Math.random() * colors.length)];
+  const pc = ping < 60 ? 'good' : ping < 120 ? 'ok' : 'bad';
+  const row = document.createElement('div');
+  row.className = 'player-row';
+  row.style.setProperty('--i', i);
+  row.innerHTML = `
+    <div class="player-avatar" style="--color:${col}">${name[0]}</div>
+    <div class="player-name">${name}</div>
+    <div class="player-ping ${pc}">${ping}ms</div>
+  `;
+  pList.appendChild(row);
+}
+
+// Ping flicker
+const pingEl = document.getElementById('pingDisp');
+setInterval(() => { pingEl.textContent = 20 + Math.floor(Math.random() * 60); }, 2000);
+
+// Loading
+const messages = [
+  'INITIALISIERE SYSTEM...',
+  'LADE MAP-DATEN...',
+  'TEXTUREN KOMPRIMIEREN...',
+  'PIXEL SORTIEREN...',
+  'SOUNDS BUFFERN...',
+  'SERVER SYNC...',
+  'SPIELLOGIK STARTEN...',
+  'FAST FERTIG...',
+  'BEREIT. VIEL ERFOLG!'
+];
+const tips = [
+  'Verrate niemanden... außer du bist der Traitor.',
+  'Als Detective: Leichen untersuchen gibt wertvolle Hinweise!',
+  'Innocent? Bleib in der Gruppe – Sicherheit in Zahlen.',
+  'Traitor-Waffen kaufst du im Traitor Shop mit T-Punkten.',
+  'Nicht jeder Verdächtige ist auch schuldig.',
+  'Schieß nicht auf Unschuldige – das gibt Karma-Verlust!'
+];
+
+const pbar = document.getElementById('pbar');
+const msgEl = document.getElementById('loadMsg');
+const pctEl = document.getElementById('pctTxt');
+const tipEl = document.getElementById('tip');
+
+let pct = 0, msgIdx = 0;
+tipEl.innerHTML = '&gt; TIPP: <span>' + tips[0] + '</span>';
+
+const iv = setInterval(() => {
+  pct = Math.min(100, pct + 0.6 + Math.random() * 2.2);
+  pbar.style.width = pct + '%';
+  pctEl.textContent = Math.floor(pct) + '%';
+
+  const mi = Math.min(messages.length - 1, Math.floor((pct / 100) * (messages.length - 1)));
+  if (mi !== msgIdx) {
+    msgIdx = mi;
+    msgEl.textContent = messages[msgIdx];
+    tipEl.innerHTML = '&gt; TIPP: <span>' + tips[Math.floor(Math.random() * tips.length)] + '</span>';
+  }
+  if (pct >= 100) clearInterval(iv);
+}, 80);
+</script>
+</body>
+</html>
