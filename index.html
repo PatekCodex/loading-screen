@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>House of Crazy People – TTT</title>
-<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323:wght@400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -14,10 +14,10 @@
   --cyan:    #00f5ff;
   --yellow:  #ffe600;
   --bg:      #0d0015;
-  --surface: #130020;
   --grid:    #1a0030;
   --text:    #f0c0ff;
   --dim:     #7a4a9a;
+  --gmod-bar-height: 36px;
 }
 
 body {
@@ -31,18 +31,14 @@ body {
   image-rendering: pixelated;
 }
 
-/* ── RETRO GRID BACKGROUND ── */
 .grid-bg {
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0;
   background: linear-gradient(to bottom, #0d0015 0%, #0d0015 40%, #1a002e 100%);
   z-index: 0;
 }
 .grid-bg::before {
   content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 55%;
+  position: absolute; bottom: 0; left: 0; right: 0; height: 55%;
   background-image:
     linear-gradient(rgba(180,0,255,0.25) 1px, transparent 1px),
     linear-gradient(90deg, rgba(180,0,255,0.25) 1px, transparent 1px);
@@ -51,402 +47,183 @@ body {
   transform: perspective(400px) rotateX(55deg);
   animation: gridMove 6s linear infinite;
 }
-@keyframes gridMove {
-  0%   { background-position: 0 0; }
-  100% { background-position: 0 60px; }
-}
+@keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 0 60px; } }
 .grid-bg::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 35%;
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 35%;
   background: linear-gradient(to top, var(--bg) 0%, transparent 100%);
 }
 
-/* Sun */
 .sun {
   position: fixed;
-  bottom: 32%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 160px;
-  height: 160px;
-  border-radius: 50%;
+  bottom: calc(28% + var(--gmod-bar-height));
+  left: 50%; transform: translateX(-50%);
+  width: 160px; height: 160px; border-radius: 50%;
   background: linear-gradient(180deg, var(--yellow) 0%, var(--pink) 50%, var(--purple) 100%);
   box-shadow: 0 0 60px var(--pink), 0 0 120px rgba(180,0,255,0.4);
-  z-index: 1;
-  overflow: hidden;
+  z-index: 1; overflow: hidden;
 }
-.sun-lines {
-  position: absolute;
-  top: 55%;
-  left: 0; right: 0; /* volle Breite */
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-.sun-line {
-  height: var(--h);
-  background: var(--bg);
-  width: calc(100% - 320px);
-}
+.sun-lines { position: absolute; top: 55%; left: 0; right: 0; display: flex; flex-direction: column; }
+.sun-line { height: var(--h); background: var(--bg); width: 100%; }
 
-/* Stars */
-.stars {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
+.stars { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 .star {
-  position: absolute;
-  background: #fff;
-  width: 2px; height: 2px;
+  position: absolute; background: #fff; width: 2px; height: 2px;
   animation: twinkle var(--d, 2s) ease-in-out infinite;
   animation-delay: var(--delay, 0s);
 }
-@keyframes twinkle {
-  0%, 100% { opacity: 1; } 50% { opacity: 0.1; }
-}
+@keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: 0.1; } }
 
-/* Scanlines */
 .scanlines {
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0px, transparent 3px,
-    rgba(0,0,0,0.2) 3px, rgba(0,0,0,0.2) 4px
-  );
-  z-index: 50;
-  pointer-events: none;
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(0,0,0,0.2) 3px, rgba(0,0,0,0.2) 4px);
+  z-index: 50; pointer-events: none;
 }
-
-/* CRT glow edges */
 .crt {
-  position: fixed;
-  inset: 0;
+  position: fixed; inset: 0;
   box-shadow: inset 0 0 80px rgba(180,0,255,0.15), inset 0 0 20px rgba(0,245,255,0.08);
-  z-index: 51;
-  pointer-events: none;
+  z-index: 51; pointer-events: none;
 }
 
-/* ── TOP BAR ── */
 .topbar {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  position: relative; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
   padding: 10px 20px;
-  background: rgba(13,0,21,0.85);
+  background: rgba(13,0,21,0.92);
   border-bottom: 3px solid var(--purple);
   box-shadow: 0 0 20px var(--purple), 0 4px 0 var(--pink);
   flex-shrink: 0;
 }
-
 .server-name {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.75rem;
-  color: var(--cyan);
-  text-shadow: 0 0 10px var(--cyan), 2px 2px 0 var(--purple);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  letter-spacing: 0.05em;
+  font-family: 'Press Start 2P', monospace; font-size: 0.75rem;
+  color: var(--cyan); text-shadow: 0 0 10px var(--cyan), 2px 2px 0 var(--purple);
+  display: flex; align-items: center; gap: 10px;
 }
 .server-logo {
-  height: 38px;
-  width: 38px;
-  object-fit: cover;
-  border: 2px solid var(--pink);
-  image-rendering: pixelated;
-  box-shadow: 0 0 8px var(--pink);
+  height: 38px; width: 38px; object-fit: cover;
+  border: 2px solid var(--pink); box-shadow: 0 0 8px var(--pink);
 }
-
 .status-pill {
-  font-family: 'VT323', monospace;
-  font-size: 1.1rem;
-  color: var(--pink);
-  text-shadow: 0 0 8px var(--pink);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-family: 'VT323', monospace; font-size: 1.1rem;
+  color: var(--pink); text-shadow: 0 0 8px var(--pink);
   animation: blink 1s step-end infinite;
 }
 @keyframes blink { 50% { opacity: 0.4; } }
 
-/* ── MAIN ── */
+/* Main content stops before GMod bar */
 .main {
   flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 280px;
-  position: relative;
-  z-index: 5;
+  display: grid; grid-template-columns: 1fr 280px;
+  position: relative; z-index: 5;
   overflow: hidden;
+  padding-bottom: calc(var(--gmod-bar-height) + 60px);
 }
 
-/* ── HERO ── */
 .hero {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 20px 28px 24px;
-  position: relative;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 20px 28px 24px; position: relative;
 }
-
 .hero-cat {
-  position: absolute;
-  bottom: 80px;
-  right: 20px;
-  height: 180px;
-  image-rendering: pixelated;
+  position: absolute; bottom: calc(80px + var(--gmod-bar-height)); right: 20px;
+  height: 180px; image-rendering: pixelated;
   filter: drop-shadow(0 0 20px var(--pink)) drop-shadow(0 0 40px var(--purple));
-  animation: catFloat 3s ease-in-out infinite;
-  z-index: 3;
+  animation: catFloat 3s ease-in-out infinite; z-index: 3;
 }
 @keyframes catFloat {
   0%, 100% { transform: translateY(0) scale(1); }
   50%       { transform: translateY(-10px) scale(1.03); }
 }
-
 .hero-content { position: relative; z-index: 4; }
-
 .pixel-badge {
-  display: inline-block;
-  font-family: 'VT323', monospace;
-  font-size: 1rem;
-  color: var(--yellow);
-  text-shadow: 0 0 8px var(--yellow);
-  letter-spacing: 0.1em;
-  border: 2px solid var(--yellow);
-  padding: 2px 8px;
-  margin-bottom: 10px;
-  box-shadow: 2px 2px 0 rgba(255,230,0,0.3);
+  display: inline-block; font-family: 'VT323', monospace; font-size: 1rem;
+  color: var(--yellow); text-shadow: 0 0 8px var(--yellow);
+  border: 2px solid var(--yellow); padding: 2px 8px; margin-bottom: 10px;
 }
-
 .hero h1 {
   font-family: 'Press Start 2P', monospace;
-  font-size: clamp(1rem, 2.8vw, 1.8rem);
-  line-height: 1.6;
-  color: #fff;
-  text-shadow:
-    3px 3px 0 var(--purple),
-    0 0 20px var(--pink),
-    0 0 40px rgba(255,45,120,0.4);
+  font-size: clamp(1rem, 2.8vw, 1.8rem); line-height: 1.6; color: #fff;
+  text-shadow: 3px 3px 0 var(--purple), 0 0 20px var(--pink);
 }
 .hero h1 .glow-pink { color: var(--pink); text-shadow: 0 0 20px var(--pink), 3px 3px 0 #7b0040; }
 .hero h1 .glow-cyan { color: var(--cyan); text-shadow: 0 0 20px var(--cyan), 3px 3px 0 #006080; }
+.hero-sub { font-family: 'VT323', monospace; font-size: 1.1rem; color: var(--dim); margin-top: 12px; line-height: 1.5; }
+.pixel-deco { position: absolute; font-family: 'VT323', monospace; font-size: 1.2rem; color: var(--purple); opacity: 0.4; pointer-events: none; }
 
-.hero-sub {
-  font-family: 'VT323', monospace;
-  font-size: 1.1rem;
-  color: var(--dim);
-  margin-top: 12px;
-  line-height: 1.5;
-  letter-spacing: 0.05em;
-}
-
-/* Pixel decorations */
-.pixel-deco {
-  position: absolute;
-  font-family: 'VT323', monospace;
-  font-size: 1.2rem;
-  color: var(--purple);
-  opacity: 0.4;
-  pointer-events: none;
-}
-
-/* ── RIGHT PANEL ── */
 .panel {
   border-left: 3px solid var(--purple);
   box-shadow: -4px 0 20px rgba(180,0,255,0.3);
   background: rgba(13,0,21,0.7);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 5;
+  display: flex; flex-direction: column; overflow: hidden; z-index: 5;
 }
-
-.panel-section {
-  padding: 14px 16px;
-  border-bottom: 2px solid var(--grid);
-  flex-shrink: 0;
-}
-
+.panel-section { padding: 14px 16px; border-bottom: 2px solid var(--grid); flex-shrink: 0; }
 .section-label {
-  font-size: 0.45rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--cyan);
-  text-shadow: 0 0 8px var(--cyan);
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  font-size: 0.45rem; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--cyan); text-shadow: 0 0 8px var(--cyan);
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
 }
 .section-label::before { content: '▶'; font-size: 0.5rem; }
-
-/* Stats */
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .stat {
-  background: var(--grid);
-  border: 2px solid var(--purple);
-  padding: 8px 10px;
+  background: var(--grid); border: 2px solid var(--purple); padding: 8px 10px;
   box-shadow: inset 0 0 10px rgba(180,0,255,0.15), 2px 2px 0 var(--purple);
 }
-.stat-val {
-  font-family: 'VT323', monospace;
-  font-size: 1.4rem;
-  color: var(--pink);
-  text-shadow: 0 0 8px var(--pink);
-  line-height: 1;
-}
-.stat-key {
-  font-size: 0.35rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--dim);
-  margin-top: 2px;
-}
-
-/* Players */
+.stat-val { font-family: 'VT323', monospace; font-size: 1.4rem; color: var(--pink); text-shadow: 0 0 8px var(--pink); line-height: 1; }
+.stat-key { font-size: 0.35rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); margin-top: 2px; }
 .players-wrap { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
 .players-inner { flex: 1; overflow-y: auto; padding: 10px 16px; }
 .players-inner::-webkit-scrollbar { width: 4px; }
-.players-inner::-webkit-scrollbar-track { background: var(--bg); }
 .players-inner::-webkit-scrollbar-thumb { background: var(--purple); }
-
 .player-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 0;
+  display: flex; align-items: center; gap: 8px; padding: 5px 0;
   border-bottom: 1px solid rgba(180,0,255,0.15);
   animation: slideIn 0.3s ease both;
   animation-delay: calc(var(--i) * 0.06s);
 }
 @keyframes slideIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; } }
-
 .player-avatar {
-  width: 22px; height: 22px;
-  border: 2px solid var(--color, var(--purple));
-  background: rgba(180,0,255,0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.45rem;
-  color: #fff;
-  flex-shrink: 0;
+  width: 22px; height: 22px; border: 2px solid var(--color, var(--purple));
+  background: rgba(180,0,255,0.1); display: flex; align-items: center;
+  justify-content: center; font-size: 0.45rem; color: #fff; flex-shrink: 0;
   box-shadow: 0 0 6px var(--color, var(--purple));
-  image-rendering: pixelated;
 }
-.player-name {
-  font-family: 'VT323', monospace;
-  font-size: 0.9rem;
-  color: var(--text);
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.player-ping {
-  font-family: 'VT323', monospace;
-  font-size: 0.8rem;
-  color: var(--dim);
-}
-.player-ping.good { color: #00ff88; text-shadow: 0 0 6px #00ff88; }
+.player-name { font-family: 'VT323', monospace; font-size: 0.9rem; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.player-ping { font-family: 'VT323', monospace; font-size: 0.8rem; color: var(--dim); }
+.player-ping.good { color: #00ff88; }
 .player-ping.ok   { color: var(--yellow); }
 .player-ping.bad  { color: var(--pink); }
 
-/* ── BOTTOM ── */
-/* ── BOTTOM ── */
+/* Ladebalken - sitzt über dem GMod Balken */
 .bottom {
   position: fixed;
-  bottom: 0;
+  bottom: var(--gmod-bar-height);
   left: 0; right: 0;
   z-index: 9999;
-  padding: 8px 20px 30px;
-  background: rgba(13,0,21,0.97);
+  padding: 8px 20px 10px;
+  background: rgba(13,0,21,0.98);
   border-top: 3px solid var(--pink);
   box-shadow: 0 -4px 0 var(--purple), 0 0 30px rgba(255,45,120,0.3);
 }
-
-.progress-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 6px;
-}
-.progress-msg {
-  font-size: 0.4rem;
-  letter-spacing: 0.1em;
-  color: var(--cyan);
-  text-shadow: 0 0 8px var(--cyan);
-}
-.progress-pct {
-  font-family: 'VT323', monospace;
-  font-size: 1.4rem;
-  color: var(--pink);
-  text-shadow: 0 0 10px var(--pink);
-}
-
+.progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+.progress-msg { font-size: 0.4rem; letter-spacing: 0.1em; color: var(--cyan); text-shadow: 0 0 8px var(--cyan); }
+.progress-pct { font-family: 'VT323', monospace; font-size: 1.4rem; color: var(--pink); text-shadow: 0 0 10px var(--pink); }
 .progress-track {
-  width: calc(100% - 320px);
-  height: 12px;
-  background: var(--grid);
-  border: 2px solid var(--purple);
-  position: relative;
-  overflow: hidden;
+  width: 100%; height: 12px; background: var(--grid);
+  border: 2px solid var(--purple); position: relative; overflow: hidden;
   box-shadow: 0 0 10px rgba(180,0,255,0.3);
-  image-rendering: pixelated;
 }
-
 .progress-bar {
-  height: 100%;
-  width: 0%;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--pink) 0px, var(--pink) 8px,
-    var(--purple) 8px, var(--purple) 16px
-  );
+  height: 100%; width: 0%;
+  background: repeating-linear-gradient(90deg, var(--pink) 0px, var(--pink) 8px, var(--purple) 8px, var(--purple) 16px);
   transition: width 0.25s steps(10);
-  box-shadow: 0 0 15px var(--pink);
-  position: relative;
+  box-shadow: 0 0 15px var(--pink); position: relative;
 }
 .progress-bar::after {
-  content: '';
-  position: absolute;
-  right: 0; top: 0; bottom: 0; width: 4px;
-  background: #fff;
-  animation: cursor 0.5s step-end infinite;
+  content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 4px;
+  background: #fff; animation: cursor 0.5s step-end infinite;
 }
 @keyframes cursor { 50% { opacity: 0; } }
-
-.tip {
-  margin-top: 6px;
-  font-family: 'VT323', monospace;
-  font-size: 0.85rem;
-  color: var(--dim);
-  letter-spacing: 0.03em;
-}
+.tip { margin-top: 6px; font-family: 'VT323', monospace; font-size: 0.85rem; color: var(--dim); }
 .tip span { color: var(--yellow); }
 
-/* ── GMOD NATIVE UI VERSTECKEN ── */
-/* Versteckt den nativen GMod Ladebalken */
-#loading_popup,
-#loading_bar,
-.loading_popup,
-.loading_bar,
-#gmod_loading,
-body > div[style*="position: fixed"],
-body > div[style*="position:fixed"] {
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-
-/* Floating pixel symbols */
 @keyframes floatPixel {
   0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
   10%  { opacity: 1; }
@@ -454,26 +231,17 @@ body > div[style*="position:fixed"] {
   100% { transform: translateY(-70vh) rotate(360deg); opacity: 0; }
 }
 .fpx {
-  position: fixed;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.6rem;
-  color: var(--purple);
+  position: fixed; font-family: 'Press Start 2P', monospace; font-size: 0.6rem;
   pointer-events: none;
   animation: floatPixel var(--d, 8s) linear infinite;
-  animation-delay: var(--delay, 0s);
-  left: var(--x, 50%);
-  bottom: 80px;
-  z-index: 2;
-  text-shadow: 0 0 6px var(--purple);
-  opacity: 0;
+  animation-delay: var(--delay, 0s); left: var(--x, 50%);
+  bottom: calc(80px + var(--gmod-bar-height)); z-index: 2; opacity: 0;
 }
 </style>
 </head>
 <body>
 
 <div class="grid-bg"></div>
-
-<!-- Sun -->
 <div class="sun">
   <div class="sun-lines">
     <div class="sun-line" style="--h:6px"></div>
@@ -484,12 +252,10 @@ body > div[style*="position:fixed"] {
     <div class="sun-line" style="--h:3px; margin-top:9px"></div>
   </div>
 </div>
-
 <div class="stars" id="stars"></div>
 <div class="scanlines"></div>
 <div class="crt"></div>
 
-<!-- TOP BAR -->
 <div class="topbar">
   <div class="server-name">
     <img class="server-logo" src="p.png" alt="Logo">
@@ -498,22 +264,15 @@ body > div[style*="position:fixed"] {
   <div class="status-pill" id="statusPill">● CONNECTING...</div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
   <div class="hero">
     <div class="pixel-deco" style="top:15%;left:5%">✦ ✦ ✦</div>
     <div class="pixel-deco" style="top:25%;left:60%;color:var(--pink);opacity:0.3">◆ ◆</div>
     <div class="pixel-deco" style="top:10%;right:30%;color:var(--cyan);opacity:0.25;font-size:1rem">★ ★ ★ ★</div>
-
-    <img class="hero-cat" src="p.png" alt="Server Mascot">
-
+    <img class="hero-cat" src="p.png" alt="Mascot">
     <div class="hero-content">
       <div class="pixel-badge">&gt;&gt; TTT SERVER &lt;&lt;</div>
-      <h1>
-        TROUBLE<br>
-        IN <span class="glow-pink">TERRORIST</span><br>
-        <span class="glow-cyan">TOWN</span>
-      </h1>
+      <h1>TROUBLE<br>IN <span class="glow-pink">TERRORIST</span><br><span class="glow-cyan">TOWN</span></h1>
       <div class="hero-sub">
         &gt; WÄHLE DEINE SEITE<br>
         &gt; INNOCENT / TRAITOR / DETECTIVE<br>
@@ -522,139 +281,48 @@ body > div[style*="position:fixed"] {
     </div>
   </div>
 
-  <!-- RIGHT PANEL -->
   <div class="panel">
     <div class="panel-section">
       <div class="section-label">SERVER INFO</div>
       <div class="stats">
-        <div class="stat">
-          <div class="stat-val" id="playerCount">--/32</div>
-          <div class="stat-key">Spieler</div>
-        </div>
-        <div class="stat">
-          <div class="stat-val" id="gamemodeDisp">TTT</div>
-          <div class="stat-key">Modus</div>
-        </div>
-        <div class="stat">
-          <div class="stat-val" id="mapDisp" style="font-size:0.8rem">--</div>
-          <div class="stat-key">Map</div>
-        </div>
-        <div class="stat">
-          <div class="stat-val" id="filesDisp">--</div>
-          <div class="stat-key">Downloads</div>
-        </div>
+        <div class="stat"><div class="stat-val" id="playerCount">--/32</div><div class="stat-key">Spieler</div></div>
+        <div class="stat"><div class="stat-val" id="gamemodeDisp">TTT</div><div class="stat-key">Modus</div></div>
+        <div class="stat"><div class="stat-val" id="mapDisp" style="font-size:0.8rem">--</div><div class="stat-key">Map</div></div>
+        <div class="stat"><div class="stat-val" id="filesDisp">--</div><div class="stat-key">Downloads</div></div>
       </div>
     </div>
-
-    <div class="panel-section">
-      <div class="section-label">SPIELER ONLINE</div>
-    </div>
+    <div class="panel-section"><div class="section-label">SPIELER ONLINE</div></div>
     <div class="players-wrap">
       <div class="players-inner" id="playerList">
-        <div style="font-family:'VT323',monospace;color:var(--dim);font-size:0.9rem;padding:10px 0;">
-          &gt; Warte auf Serverdaten...
-        </div>
+        <div style="font-family:'VT323',monospace;color:var(--dim);font-size:0.9rem;padding:10px 0;">&gt; Warte auf Serverdaten...</div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- BOTTOM PROGRESS -->
 <div class="bottom">
   <div class="progress-header">
     <div class="progress-msg" id="loadMsg">VERBINDE MIT SERVER...</div>
+    <div class="progress-pct" id="pctTxt">0%</div>
   </div>
-  <div style="display:flex;align-items:center;gap:10px;">
-    <div class="progress-track" style="flex:1;">
-      <div class="progress-bar" id="pbar"></div>
-    </div>
-    <div class="progress-pct" id="pctTxt" style="flex-shrink:0;">0%</div>
-  </div>
+  <div class="progress-track"><div class="progress-bar" id="pbar"></div></div>
   <div class="tip" id="tip">&gt; TIPP: <span>Verrate niemanden... außer du bist der Traitor.</span></div>
 </div>
 
 <div id="floaters"></div>
 
 <script>
-// ── URL PARAMETER AUSLESEN (von GMod übergeben) ──
 const params = new URLSearchParams(window.location.search);
-const urlMap      = params.get('map')      || '';
-const urlSteamId  = params.get('steamid')  || '';
+const urlMap        = params.get('map')        || '';
 const urlMaxPlayers = params.get('maxplayers') || '32';
-const urlGamemode = params.get('gamemode') || 'terrortown';
+const urlGamemode   = params.get('gamemode')   || 'terrortown';
 const urlServername = params.get('servername') || 'HOUSE OF CRAZY PEOPLE';
 
-// Servername anzeigen
-if (urlServername) {
-  document.getElementById('serverNameDisplay').textContent = urlServername.toUpperCase();
-}
-
-// Map anzeigen
-if (urlMap) {
-  const mapShort = urlMap.replace('ttt_', '').replace('_', ' ').toUpperCase();
-  document.getElementById('mapDisp').textContent = mapShort;
-}
-
-// Maxplayers
+if (urlServername) document.getElementById('serverNameDisplay').textContent = urlServername.toUpperCase();
+if (urlMap) document.getElementById('mapDisp').textContent = urlMap.replace('ttt_','').replace(/_/g,' ').toUpperCase();
 document.getElementById('playerCount').textContent = '--/' + urlMaxPlayers;
+document.getElementById('gamemodeDisp').textContent = urlGamemode === 'terrortown' ? 'TTT' : urlGamemode.toUpperCase();
 
-// Gamemode
-const gmDisplay = urlGamemode === 'terrortown' ? 'TTT' : urlGamemode.toUpperCase();
-document.getElementById('gamemodeDisp').textContent = gmDisplay;
-
-// ── GMOD CALLBACKS ──
-// Wird von GMod aufgerufen wenn sich der Status ändert
-window.SetStatusChanged = function(status) {
-  document.getElementById('loadMsg').textContent = status.toUpperCase();
-  document.getElementById('statusPill').textContent = '● ' + status.toUpperCase();
-
-  // Fortschritt schätzen basierend auf Status
-  const statusMap = {
-    'Retrieving server info': 5,
-    'Sending client info': 15,
-    'Parsing game info': 20,
-    'Receiving signatures': 30,
-    'Checking map': 40,
-    'Loading resources': 55,
-    'Requesting resources': 60,
-    'Downloading resources': 70,
-    'Starting Lua': 80,
-    'Sending client info': 85,
-    'Settling': 90,
-    'Done': 100,
-  };
-  for (const [key, val] of Object.entries(statusMap)) {
-    if (status.includes(key)) {
-      setProgress(val);
-      break;
-    }
-  }
-};
-
-// Wird aufgerufen wenn Dateien heruntergeladen werden
-window.SetFilesNeeded = function(needed) {
-  document.getElementById('filesDisp').textContent = needed;
-};
-
-window.SetFilesTotal = function(total) {
-  // total files
-};
-
-// Wird aufgerufen mit Serverinfos
-window.GameDetails = function(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, language) {
-  if (servername) document.getElementById('serverNameDisplay').textContent = servername.toUpperCase();
-  if (mapname) {
-    const mapShort = mapname.replace('ttt_', '').replace(/_/g, ' ').toUpperCase();
-    document.getElementById('mapDisp').textContent = mapShort;
-  }
-  if (maxplayers) document.getElementById('playerCount').textContent = '--/' + maxplayers;
-  if (gamemode) {
-    const gm = gamemode === 'terrortown' ? 'TTT' : gamemode.toUpperCase();
-    document.getElementById('gamemodeDisp').textContent = gm;
-  }
-};
-
-// Fortschrittsbalken setzen
 let currentPct = 0;
 function setProgress(pct) {
   if (pct > currentPct) {
@@ -664,7 +332,28 @@ function setProgress(pct) {
   }
 }
 
-// ── STARS ──
+window.GameDetails = function(servername, serverurl, mapname, maxplayers, steamid, gamemode) {
+  if (servername) document.getElementById('serverNameDisplay').textContent = servername.toUpperCase();
+  if (mapname) document.getElementById('mapDisp').textContent = mapname.replace('ttt_','').replace(/_/g,' ').toUpperCase();
+  if (maxplayers) document.getElementById('playerCount').textContent = '--/' + maxplayers;
+  if (gamemode) document.getElementById('gamemodeDisp').textContent = gamemode === 'terrortown' ? 'TTT' : gamemode.toUpperCase();
+};
+
+window.SetFilesNeeded = function(n) { document.getElementById('filesDisp').textContent = n; };
+
+const statusProgress = { 'Retrieving':5,'Sending client':15,'Parsing':20,'Receiving':30,'Checking':40,'Loading':55,'Requesting':60,'Downloading':70,'Starting Lua':80,'Settling':90,'Done':100 };
+
+let fallbackRunning = true;
+window.SetStatusChanged = function(status) {
+  fallbackRunning = false;
+  document.getElementById('loadMsg').textContent = status.toUpperCase();
+  document.getElementById('statusPill').textContent = '● ' + status.toUpperCase();
+  for (const [key, val] of Object.entries(statusProgress)) {
+    if (status.includes(key)) { setProgress(val); break; }
+  }
+};
+
+// Stars
 const starsEl = document.getElementById('stars');
 for (let i = 0; i < 80; i++) {
   const s = document.createElement('div');
@@ -677,7 +366,7 @@ for (let i = 0; i < 80; i++) {
   starsEl.appendChild(s);
 }
 
-// ── FLOATING SYMBOLS ──
+// Floaters
 const symbols = ['★','◆','✦','▲','●','♦','✿','◉'];
 const floatEl = document.getElementById('floaters');
 for (let i = 0; i < 20; i++) {
@@ -688,10 +377,11 @@ for (let i = 0; i < 20; i++) {
   f.style.setProperty('--d', (6 + Math.random() * 10) + 's');
   f.style.setProperty('--delay', Math.random() * 10 + 's');
   f.style.color = Math.random() > 0.5 ? 'var(--pink)' : 'var(--cyan)';
+  f.style.textShadow = '0 0 6px ' + (Math.random() > 0.5 ? 'var(--pink)' : 'var(--cyan)');
   floatEl.appendChild(f);
 }
 
-// ── TIPPS ──
+// Tips
 const tips = [
   'Verrate niemanden... außer du bist der Traitor.',
   'Als Detective: Leichen untersuchen gibt wertvolle Hinweise!',
@@ -699,10 +389,9 @@ const tips = [
   'Traitor-Waffen kaufst du im Traitor Shop mit T-Punkten.',
   'Nicht jeder Verdächtige ist auch schuldig.',
   'Schieß nicht auf Unschuldige – das gibt Karma-Verlust!',
-  'Der Detective kann mit seiner DNA-Pistole Mörder identifizieren.',
+  'Der Detective kann mit DNA-Pistole Mörder identifizieren.',
   'Als Traitor: Vermeide es, allein mit dem Detective zu sein!'
 ];
-
 const tipEl = document.getElementById('tip');
 let tipIdx = 0;
 tipEl.innerHTML = '&gt; TIPP: <span>' + tips[0] + '</span>';
@@ -711,42 +400,20 @@ setInterval(() => {
   tipEl.innerHTML = '&gt; TIPP: <span>' + tips[tipIdx] + '</span>';
 }, 8000);
 
-// ── ANIMIERTER FORTSCHRITTS-FALLBACK (falls GMod keine Daten schickt) ──
-let fallbackRunning = true;
-let fallbackPct = 0;
-const fallbackMsgs = [
-  'VERBINDE MIT SERVER...',
-  'SERVER INFO ABRUFEN...',
-  'MAP PRÜFEN...',
-  'RESSOURCEN LADEN...',
-  'LUA STARTEN...',
-  'FAST FERTIG...',
-  'BEREIT. VIEL ERFOLG!'
-];
-let fallbackMsgIdx = 0;
+// Fallback
+let fallbackPct = 0, fallbackMsgIdx = 0;
+const fallbackMsgs = ['VERBINDE MIT SERVER...','SERVER INFO ABRUFEN...','MAP PRÜFEN...','RESSOURCEN LADEN...','LUA STARTEN...','FAST FERTIG...'];
 const msgEl = document.getElementById('loadMsg');
-
-const fallbackIv = setInterval(() => {
-  if (!fallbackRunning) return;
+const iv = setInterval(() => {
+  if (!fallbackRunning) { clearInterval(iv); return; }
   fallbackPct = Math.min(95, fallbackPct + 0.4 + Math.random() * 1.5);
   if (fallbackPct > currentPct) {
     document.getElementById('pbar').style.width = fallbackPct + '%';
     document.getElementById('pctTxt').textContent = Math.floor(fallbackPct) + '%';
   }
   const mi = Math.min(fallbackMsgs.length - 1, Math.floor((fallbackPct / 95) * (fallbackMsgs.length - 1)));
-  if (mi !== fallbackMsgIdx) {
-    fallbackMsgIdx = mi;
-    if (currentPct < 10) msgEl.textContent = fallbackMsgs[fallbackMsgIdx];
-  }
+  if (mi !== fallbackMsgIdx) { fallbackMsgIdx = mi; msgEl.textContent = fallbackMsgs[mi]; }
 }, 100);
-
-// Fallback stoppen wenn GMod echte Daten schickt
-const origSetStatus = window.SetStatusChanged;
-window.SetStatusChanged = function(status) {
-  fallbackRunning = false;
-  clearInterval(fallbackIv);
-  origSetStatus(status);
-};
 </script>
 </body>
 </html>
