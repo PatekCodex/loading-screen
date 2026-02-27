@@ -965,7 +965,24 @@ fetch('playlist.json')
   .then(data => {
     playlist = data;
     loadTrack(0);
-    setTimeout(() => { playTrack(); }, 500);
+    // Autoplay versuchen
+    const tryAutoplay = () => {
+      if (!analyserConnected) connectAnalyser();
+      audio.play().then(() => {
+        isPlaying = true;
+        document.getElementById('trackName') && (document.getElementById('btnPlay') && (document.getElementById('btnPlay').textContent = '⏸ PAUSE'));
+      }).catch(() => {
+        // Browser blockiert Autoplay – beim ersten Klick/Taste starten
+        const startOnInteraction = () => {
+          playTrack();
+          document.removeEventListener('click', startOnInteraction);
+          document.removeEventListener('keydown', startOnInteraction);
+        };
+        document.addEventListener('click', startOnInteraction);
+        document.addEventListener('keydown', startOnInteraction);
+      });
+    };
+    setTimeout(tryAutoplay, 300);
   })
   .catch(() => {
     playlist = [{ name: "Keine playlist.json", artist: "Erstelle playlist.json!", file: "" }];
