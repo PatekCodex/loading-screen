@@ -230,24 +230,7 @@ body {
 .music-controls {
   display: flex; align-items: center; gap: 6px; margin-bottom: 6px;
 }
-.music-btn {
-  background: none; border: 1px solid var(--purple);
-  color: var(--pink); cursor: pointer; padding: 3px 7px;
-  font-family: 'Press Start 2P', monospace; font-size: 0.35rem;
-  box-shadow: 0 0 6px rgba(180,0,255,0.3);
-  transition: all 0.15s;
-}
-.music-btn:hover { background: rgba(180,0,255,0.15); box-shadow: 0 0 12px var(--purple); }
-.music-btn.active { background: rgba(255,45,120,0.15); border-color: var(--pink); color: #fff; }
-.music-vol {
-  flex: 1; display: flex; align-items: center; gap: 5px;
-}
-.vol-label { font-size: 0.3rem; color: var(--dim); }
-.vol-track {
-  flex: 1; height: 3px; background: var(--grid);
-  border: 1px solid var(--purple); position: relative; cursor: pointer;
-}
-.vol-fill { height: 100%; width: 70%; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); }
+
 .music-progress-track {
   height: 3px; background: var(--grid); border: 1px solid var(--dim);
   position: relative; overflow: hidden;
@@ -399,17 +382,7 @@ body {
       <div class="music-player">
         <div class="music-track-name" id="trackName">Kein Track</div>
         <div class="music-artist" id="trackArtist">--</div>
-        <div class="music-controls">
-          <button class="music-btn" id="btnPrev" onclick="prevTrack()">◀◀</button>
-          <button class="music-btn active" id="btnPlay" onclick="togglePlay()">▶</button>
-          <button class="music-btn" id="btnNext" onclick="nextTrack()">▶▶</button>
-          <div class="music-vol">
-            <span class="vol-label">VOL</span>
-            <div class="vol-track" id="volTrack" onclick="setVolume(event)">
-              <div class="vol-fill" id="volFill"></div>
-            </div>
-          </div>
-        </div>
+
         <div class="music-progress-track" id="progressTrack" onclick="seekMusic(event)">
           <div class="music-progress-fill" id="musicProgress"></div>
         </div>
@@ -420,13 +393,7 @@ body {
       </div>
     </div>
 
-    <!-- Playlist -->
-    <div class="r-title" style="padding-top:8px;">PLAYLIST</div>
-    <div class="playlist-wrap" id="playlistWrap">
-      <div style="padding:10px 14px;font-family:'VT323',monospace;color:var(--dim);font-size:0.8rem;">
-        &gt; Lade playlist.json...
-      </div>
-    </div>
+
 
 
 
@@ -985,8 +952,7 @@ showTip();
 setInterval(showTip, 7000);
 
 // ── MUSIK PLAYER ──
-// Liest playlist.json aus dem gleichen Ordner
-// Format: [{"name":"Track Name","artist":"Artist","file":"song.mp3"},...]
+// ── MUSIK PLAYER ──
 const audio = document.getElementById('audioPlayer');
 let playlist = [];
 let currentTrack = 0;
@@ -994,42 +960,18 @@ let isPlaying = false;
 let volume = 0.7;
 audio.volume = volume;
 
-// playlist.json laden
 fetch('playlist.json')
   .then(r => r.json())
   .then(data => {
     playlist = data;
-    renderPlaylist();
     loadTrack(0);
-    // Autoplay versuchen
     setTimeout(() => { playTrack(); }, 500);
   })
   .catch(() => {
-    // Fallback wenn keine playlist.json vorhanden
-    playlist = [
-      { name: "Keine playlist.json gefunden", artist: "Erstelle playlist.json im GitHub Repo", file: "" }
-    ];
-    renderPlaylist();
+    playlist = [{ name: "Keine playlist.json", artist: "Erstelle playlist.json!", file: "" }];
     document.getElementById('trackName').textContent = "Keine playlist.json";
     document.getElementById('trackArtist').textContent = "Erstelle playlist.json!";
   });
-
-function renderPlaylist() {
-  const wrap = document.getElementById('playlistWrap');
-  wrap.innerHTML = '';
-  playlist.forEach((t, i) => {
-    const div = document.createElement('div');
-    div.className = 'playlist-item' + (i === currentTrack ? ' playing' : '');
-    div.setAttribute('onclick', 'selectTrack(' + i + ')');
-    div.innerHTML = `
-      <div class="pl-num">${i+1}</div>
-      <div class="pl-icon">${i === currentTrack && isPlaying ? '♫' : '▷'}</div>
-      <div class="pl-name">${t.name}</div>
-      <div class="pl-dur">${t.duration || ''}</div>
-    `;
-    wrap.appendChild(div);
-  });
-}
 
 function loadTrack(idx) {
   const t = playlist[idx];
@@ -1037,19 +979,16 @@ function loadTrack(idx) {
   currentTrack = idx;
   document.getElementById('trackName').textContent = t.name || 'Unbekannt';
   document.getElementById('trackArtist').textContent = t.artist || '--';
-  if (t.file) {
-    audio.src = t.file;
-    audio.load();
-  }
-  renderPlaylist();
+  if (t.file) { audio.src = t.file; audio.load(); }
 }
 
 function playTrack() {
   if (!playlist[currentTrack] || !playlist[currentTrack].file) return;
+  // Connect to analyser on first play
+  if (!analyserConnected) connectAnalyser();
   audio.play().then(() => {
     isPlaying = true;
-    document.getElementById('btnPlay').textContent = '⏸';
-    renderPlaylist();
+    document.getElementById('btnPlay').textContent = '⏸ PAUSE';
   }).catch(() => {});
 }
 
@@ -1057,32 +996,16 @@ function togglePlay() {
   if (isPlaying) {
     audio.pause();
     isPlaying = false;
-    document.getElementById('btnPlay').textContent = '▶';
+    document.getElementById('btnPlay').textContent = '▶ PLAY';
   } else {
     playTrack();
   }
-  renderPlaylist();
 }
 
 function nextTrack() {
   const next = (currentTrack + 1) % playlist.length;
   loadTrack(next);
   if (isPlaying) setTimeout(playTrack, 100);
-}
-
-function prevTrack() {
-  if (audio.currentTime > 3) {
-    audio.currentTime = 0;
-    return;
-  }
-  const prev = (currentTrack - 1 + playlist.length) % playlist.length;
-  loadTrack(prev);
-  if (isPlaying) setTimeout(playTrack, 100);
-}
-
-function selectTrack(idx) {
-  loadTrack(idx);
-  setTimeout(playTrack, 100);
 }
 
 function setVolume(e) {
@@ -1098,8 +1021,93 @@ function seekMusic(e) {
   audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
 }
 
-// Auto-next
 audio.addEventListener('ended', nextTrack);
+
+// ── MUSIC VISUALISER ──
+let audioCtx, analyser, source, dataArray, analyserConnected = false;
+
+function connectAnalyser() {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 128;
+    dataArray = new Uint8Array(analyser.frequencyBinCount);
+    source = audioCtx.createMediaElementSource(audio);
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    analyserConnected = true;
+  } catch(e) {}
+}
+
+let visCanvas, visCtx;
+
+function drawVisualiser() {
+  requestAnimationFrame(drawVisualiser);
+  const W = visCanvas.offsetWidth;
+  const H = visCanvas.offsetHeight;
+  visCanvas.width = W;
+  visCanvas.height = H;
+
+  visCtx.clearRect(0, 0, W, H);
+  visCtx.fillStyle = 'rgba(10,0,16,0.85)';
+  visCtx.fillRect(0, 0, W, H);
+
+  if (!analyserConnected || !isPlaying) {
+    // Idle animation - smooth waves
+    const now = Date.now() / 1000;
+    const bars = 32;
+    const bw = W / bars;
+    for (let i = 0; i < bars; i++) {
+      const h = (Math.sin(now * 2 + i * 0.4) * 0.3 + 0.35) * H * 0.4;
+      const x = i * bw;
+      const hue = i / bars;
+      const r = Math.round(180 + hue * 75);
+      const g = 0;
+      const b = Math.round(255 - hue * 100);
+      visCtx.fillStyle = `rgba(${r},${g},${b},0.4)`;
+      visCtx.fillRect(x + 1, H/2 - h/2, bw - 2, h);
+    }
+    return;
+  }
+
+  analyser.getByteFrequencyData(dataArray);
+  const bars = dataArray.length;
+  const bw = W / bars;
+
+  for (let i = 0; i < bars; i++) {
+    const v = dataArray[i] / 255;
+    const h = v * H * 0.95;
+    const x = i * bw;
+
+    // Color gradient: purple → pink → cyan
+    const t2 = i / bars;
+    const r = Math.round(180 - t2 * 180 + v * 75);
+    const g = Math.round(v * 50);
+    const b = Math.round(255 - t2 * 100 + v * 50);
+
+    // Bar
+    const grad = visCtx.createLinearGradient(0, H, 0, H - h);
+    grad.addColorStop(0, `rgba(${r},${g},${b},0.9)`);
+    grad.addColorStop(1, `rgba(255,255,255,0.6)`);
+    visCtx.fillStyle = grad;
+    visCtx.fillRect(x + 1, H - h, bw - 2, h);
+
+    // Glow top cap
+    visCtx.fillStyle = `rgba(255,255,255,${v * 0.9})`;
+    visCtx.fillRect(x + 1, H - h - 2, bw - 2, 2);
+
+    // Reflection
+    visCtx.fillStyle = `rgba(${r},${g},${b},0.15)`;
+    visCtx.fillRect(x + 1, H - h/4, bw - 2, h/4);
+  }
+}
+window.addEventListener('DOMContentLoaded', () => {
+  visCanvas = document.getElementById('visualiserCanvas');
+  if (visCanvas) {
+    visCtx = visCanvas.getContext('2d');
+    drawVisualiser();
+  }
+});
 
 // Progress update
 function formatTime(s) {
