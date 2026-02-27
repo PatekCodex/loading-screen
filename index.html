@@ -20,10 +20,6 @@
   --dim:     #7a4a9a;
 }
 
-@font-face {
-  /* fallback pixel feel via Press Start 2P from Google */
-}
-
 body {
   background: var(--bg);
   color: var(--text);
@@ -39,8 +35,7 @@ body {
 .grid-bg {
   position: fixed;
   inset: 0;
-  background:
-    linear-gradient(to bottom, #0d0015 0%, #0d0015 40%, #1a002e 100%);
+  background: linear-gradient(to bottom, #0d0015 0%, #0d0015 40%, #1a002e 100%);
   z-index: 0;
 }
 .grid-bg::before {
@@ -405,7 +400,6 @@ body {
   image-rendering: pixelated;
 }
 
-/* Pixel-style progress */
 .progress-bar {
   height: 100%;
   width: 0%;
@@ -483,23 +477,19 @@ body {
 <div class="topbar">
   <div class="server-name">
     <img class="server-logo" src="p.png" alt="Logo">
-    HOUSE OF CRAZY PEOPLE
+    <span id="serverNameDisplay">HOUSE OF CRAZY PEOPLE</span>
   </div>
-  <div class="status-pill">● CONNECTING...</div>
+  <div class="status-pill" id="statusPill">● CONNECTING...</div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
   <div class="hero">
-    <!-- Pixel decorations -->
     <div class="pixel-deco" style="top:15%;left:5%">✦ ✦ ✦</div>
     <div class="pixel-deco" style="top:25%;left:60%;color:var(--pink);opacity:0.3">◆ ◆</div>
     <div class="pixel-deco" style="top:10%;right:30%;color:var(--cyan);opacity:0.25;font-size:1rem">★ ★ ★ ★</div>
 
-    <!-- Popcat -->
-    <img class="hero-cat"
-         src="p.png"
-         alt="Server Mascot">
+    <img class="hero-cat" src="p.png" alt="Server Mascot">
 
     <div class="hero-content">
       <div class="pixel-badge">&gt;&gt; TTT SERVER &lt;&lt;</div>
@@ -522,20 +512,20 @@ body {
       <div class="section-label">SERVER INFO</div>
       <div class="stats">
         <div class="stat">
-          <div class="stat-val" id="playerCount">0/32</div>
+          <div class="stat-val" id="playerCount">--/32</div>
           <div class="stat-key">Spieler</div>
         </div>
         <div class="stat">
-          <div class="stat-val">MITTE</div>
-          <div class="stat-key">Runde</div>
+          <div class="stat-val" id="gamemodeDisp">TTT</div>
+          <div class="stat-key">Modus</div>
         </div>
         <div class="stat">
-          <div class="stat-val" style="font-size:0.8rem">67thWay</div>
+          <div class="stat-val" id="mapDisp" style="font-size:0.8rem">--</div>
           <div class="stat-key">Map</div>
         </div>
         <div class="stat">
-          <div class="stat-val" id="pingDisp">--</div>
-          <div class="stat-key">Ping ms</div>
+          <div class="stat-val" id="filesDisp">--</div>
+          <div class="stat-key">Downloads</div>
         </div>
       </div>
     </div>
@@ -544,7 +534,11 @@ body {
       <div class="section-label">SPIELER ONLINE</div>
     </div>
     <div class="players-wrap">
-      <div class="players-inner" id="playerList"></div>
+      <div class="players-inner" id="playerList">
+        <div style="font-family:'VT323',monospace;color:var(--dim);font-size:0.9rem;padding:10px 0;">
+          &gt; Warte auf Serverdaten...
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -552,7 +546,7 @@ body {
 <!-- BOTTOM PROGRESS -->
 <div class="bottom">
   <div class="progress-header">
-    <div class="progress-msg" id="loadMsg">INITIALISIERE SYSTEM...</div>
+    <div class="progress-msg" id="loadMsg">VERBINDE MIT SERVER...</div>
     <div class="progress-pct" id="pctTxt">0%</div>
   </div>
   <div class="progress-track">
@@ -561,11 +555,98 @@ body {
   <div class="tip" id="tip">&gt; TIPP: <span>Verrate niemanden... außer du bist der Traitor.</span></div>
 </div>
 
-<!-- Floating pixel symbols -->
 <div id="floaters"></div>
 
 <script>
-// Stars
+// ── URL PARAMETER AUSLESEN (von GMod übergeben) ──
+const params = new URLSearchParams(window.location.search);
+const urlMap      = params.get('map')      || '';
+const urlSteamId  = params.get('steamid')  || '';
+const urlMaxPlayers = params.get('maxplayers') || '32';
+const urlGamemode = params.get('gamemode') || 'terrortown';
+const urlServername = params.get('servername') || 'HOUSE OF CRAZY PEOPLE';
+
+// Servername anzeigen
+if (urlServername) {
+  document.getElementById('serverNameDisplay').textContent = urlServername.toUpperCase();
+}
+
+// Map anzeigen
+if (urlMap) {
+  const mapShort = urlMap.replace('ttt_', '').replace('_', ' ').toUpperCase();
+  document.getElementById('mapDisp').textContent = mapShort;
+}
+
+// Maxplayers
+document.getElementById('playerCount').textContent = '--/' + urlMaxPlayers;
+
+// Gamemode
+const gmDisplay = urlGamemode === 'terrortown' ? 'TTT' : urlGamemode.toUpperCase();
+document.getElementById('gamemodeDisp').textContent = gmDisplay;
+
+// ── GMOD CALLBACKS ──
+// Wird von GMod aufgerufen wenn sich der Status ändert
+window.SetStatusChanged = function(status) {
+  document.getElementById('loadMsg').textContent = status.toUpperCase();
+  document.getElementById('statusPill').textContent = '● ' + status.toUpperCase();
+
+  // Fortschritt schätzen basierend auf Status
+  const statusMap = {
+    'Retrieving server info': 5,
+    'Sending client info': 15,
+    'Parsing game info': 20,
+    'Receiving signatures': 30,
+    'Checking map': 40,
+    'Loading resources': 55,
+    'Requesting resources': 60,
+    'Downloading resources': 70,
+    'Starting Lua': 80,
+    'Sending client info': 85,
+    'Settling': 90,
+    'Done': 100,
+  };
+  for (const [key, val] of Object.entries(statusMap)) {
+    if (status.includes(key)) {
+      setProgress(val);
+      break;
+    }
+  }
+};
+
+// Wird aufgerufen wenn Dateien heruntergeladen werden
+window.SetFilesNeeded = function(needed) {
+  document.getElementById('filesDisp').textContent = needed;
+};
+
+window.SetFilesTotal = function(total) {
+  // total files
+};
+
+// Wird aufgerufen mit Serverinfos
+window.GameDetails = function(servername, serverurl, mapname, maxplayers, steamid, gamemode, volume, language) {
+  if (servername) document.getElementById('serverNameDisplay').textContent = servername.toUpperCase();
+  if (mapname) {
+    const mapShort = mapname.replace('ttt_', '').replace(/_/g, ' ').toUpperCase();
+    document.getElementById('mapDisp').textContent = mapShort;
+  }
+  if (maxplayers) document.getElementById('playerCount').textContent = '--/' + maxplayers;
+  if (gamemode) {
+    const gm = gamemode === 'terrortown' ? 'TTT' : gamemode.toUpperCase();
+    document.getElementById('gamemodeDisp').textContent = gm;
+  }
+};
+
+// Fortschrittsbalken setzen
+let currentPct = 0;
+function setProgress(pct) {
+  if (pct > currentPct) {
+    currentPct = pct;
+    document.getElementById('pbar').style.width = pct + '%';
+    document.getElementById('pctTxt').textContent = pct + '%';
+  }
+}
+
+// ── STARS ──
 const starsEl = document.getElementById('stars');
 for (let i = 0; i < 80; i++) {
   const s = document.createElement('div');
@@ -578,7 +659,7 @@ for (let i = 0; i < 80; i++) {
   starsEl.appendChild(s);
 }
 
-// Floating pixel symbols
+// ── FLOATING SYMBOLS ──
 const symbols = ['★','◆','✦','▲','●','♦','✿','◉'];
 const floatEl = document.getElementById('floaters');
 for (let i = 0; i < 20; i++) {
@@ -588,85 +669,66 @@ for (let i = 0; i < 20; i++) {
   f.style.setProperty('--x', Math.random() * 90 + '%');
   f.style.setProperty('--d', (6 + Math.random() * 10) + 's');
   f.style.setProperty('--delay', Math.random() * 10 + 's');
-  const hue = Math.random() > 0.5 ? 'var(--pink)' : 'var(--cyan)';
-  f.style.color = hue;
+  f.style.color = Math.random() > 0.5 ? 'var(--pink)' : 'var(--cyan)';
   floatEl.appendChild(f);
 }
 
-// Players
-const names = [
-  'xXShadow_47','KillerMeow','Det_Hans','TraitorPro99',
-  'InnoDave','RageBuddy','Jens_Mörder','QuietSniper',
-  'GunMan2k','NightOwl','TTT_Legend','RedHerring',
-  'Blondie_K','Noscoper','ZockerKind','PixelCat99'
-];
-const colors = ['#ff2d78','#b400ff','#00f5ff','#ffe600','#ff6ac1','#7b2fff'];
-const pList = document.getElementById('playerList');
-const count = 8 + Math.floor(Math.random() * 14);
-document.getElementById('playerCount').textContent = count + '/32';
-
-for (let i = 0; i < count; i++) {
-  const name = names[i % names.length];
-  const ping = 15 + Math.floor(Math.random() * 200);
-  const col = colors[Math.floor(Math.random() * colors.length)];
-  const pc = ping < 60 ? 'good' : ping < 120 ? 'ok' : 'bad';
-  const row = document.createElement('div');
-  row.className = 'player-row';
-  row.style.setProperty('--i', i);
-  row.innerHTML = `
-    <div class="player-avatar" style="--color:${col}">${name[0]}</div>
-    <div class="player-name">${name}</div>
-    <div class="player-ping ${pc}">${ping}ms</div>
-  `;
-  pList.appendChild(row);
-}
-
-// Ping flicker
-const pingEl = document.getElementById('pingDisp');
-setInterval(() => { pingEl.textContent = 20 + Math.floor(Math.random() * 60); }, 2000);
-
-// Loading
-const messages = [
-  'INITIALISIERE SYSTEM...',
-  'LADE MAP-DATEN...',
-  'TEXTUREN KOMPRIMIEREN...',
-  'PIXEL SORTIEREN...',
-  'SOUNDS BUFFERN...',
-  'SERVER SYNC...',
-  'SPIELLOGIK STARTEN...',
-  'FAST FERTIG...',
-  'BEREIT. VIEL ERFOLG!'
-];
+// ── TIPPS ──
 const tips = [
   'Verrate niemanden... außer du bist der Traitor.',
   'Als Detective: Leichen untersuchen gibt wertvolle Hinweise!',
   'Innocent? Bleib in der Gruppe – Sicherheit in Zahlen.',
   'Traitor-Waffen kaufst du im Traitor Shop mit T-Punkten.',
   'Nicht jeder Verdächtige ist auch schuldig.',
-  'Schieß nicht auf Unschuldige – das gibt Karma-Verlust!'
+  'Schieß nicht auf Unschuldige – das gibt Karma-Verlust!',
+  'Der Detective kann mit seiner DNA-Pistole Mörder identifizieren.',
+  'Als Traitor: Vermeide es, allein mit dem Detective zu sein!'
 ];
 
-const pbar = document.getElementById('pbar');
-const msgEl = document.getElementById('loadMsg');
-const pctEl = document.getElementById('pctTxt');
 const tipEl = document.getElementById('tip');
-
-let pct = 0, msgIdx = 0;
+let tipIdx = 0;
 tipEl.innerHTML = '&gt; TIPP: <span>' + tips[0] + '</span>';
+setInterval(() => {
+  tipIdx = (tipIdx + 1) % tips.length;
+  tipEl.innerHTML = '&gt; TIPP: <span>' + tips[tipIdx] + '</span>';
+}, 8000);
 
-const iv = setInterval(() => {
-  pct = Math.min(100, pct + 0.6 + Math.random() * 2.2);
-  pbar.style.width = pct + '%';
-  pctEl.textContent = Math.floor(pct) + '%';
+// ── ANIMIERTER FORTSCHRITTS-FALLBACK (falls GMod keine Daten schickt) ──
+let fallbackRunning = true;
+let fallbackPct = 0;
+const fallbackMsgs = [
+  'VERBINDE MIT SERVER...',
+  'SERVER INFO ABRUFEN...',
+  'MAP PRÜFEN...',
+  'RESSOURCEN LADEN...',
+  'LUA STARTEN...',
+  'FAST FERTIG...',
+  'BEREIT. VIEL ERFOLG!'
+];
+let fallbackMsgIdx = 0;
+const msgEl = document.getElementById('loadMsg');
 
-  const mi = Math.min(messages.length - 1, Math.floor((pct / 100) * (messages.length - 1)));
-  if (mi !== msgIdx) {
-    msgIdx = mi;
-    msgEl.textContent = messages[msgIdx];
-    tipEl.innerHTML = '&gt; TIPP: <span>' + tips[Math.floor(Math.random() * tips.length)] + '</span>';
+const fallbackIv = setInterval(() => {
+  if (!fallbackRunning) return;
+  fallbackPct = Math.min(95, fallbackPct + 0.4 + Math.random() * 1.5);
+  if (fallbackPct > currentPct) {
+    document.getElementById('pbar').style.width = fallbackPct + '%';
+    document.getElementById('pctTxt').textContent = Math.floor(fallbackPct) + '%';
   }
-  if (pct >= 100) clearInterval(iv);
-}, 80);
+  const mi = Math.min(fallbackMsgs.length - 1, Math.floor((fallbackPct / 95) * (fallbackMsgs.length - 1)));
+  if (mi !== fallbackMsgIdx) {
+    fallbackMsgIdx = mi;
+    if (currentPct < 10) msgEl.textContent = fallbackMsgs[fallbackMsgIdx];
+  }
+}, 100);
+
+// Fallback stoppen wenn GMod echte Daten schickt
+const origSetStatus = window.SetStatusChanged;
+window.SetStatusChanged = function(status) {
+  fallbackRunning = false;
+  clearInterval(fallbackIv);
+  origSetStatus(status);
+};
 </script>
 </body>
 </html>
