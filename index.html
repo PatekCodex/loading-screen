@@ -80,7 +80,7 @@ body {
 .sun-lines {
   position: absolute;
   top: 55%;
-  left: 0; right: 0;
+  left: 0; right: 0; /* volle Breite */
   display: flex;
   flex-direction: column;
   gap: 0;
@@ -88,7 +88,7 @@ body {
 .sun-line {
   height: var(--h);
   background: var(--bg);
-  width: 100%;
+  width: calc(100% - 320px);
 }
 
 /* Stars */
@@ -360,14 +360,17 @@ body {
 .player-ping.bad  { color: var(--pink); }
 
 /* ── BOTTOM ── */
+/* ── BOTTOM ── */
 .bottom {
-  position: relative;
-  z-index: 10;
-  padding: 10px 20px 12px;
-  background: rgba(13,0,21,0.92);
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0; /* volle Breite */
+  z-index: 100;
+  padding: 8px 20px 10px;
+  background: rgba(13,0,21,0.97);
   border-top: 3px solid var(--pink);
+  border-bottom: 3px solid var(--purple);
   box-shadow: 0 -4px 0 var(--purple), 0 0 30px rgba(255,45,120,0.3);
-  flex-shrink: 0;
 }
 
 .progress-header {
@@ -390,7 +393,7 @@ body {
 }
 
 .progress-track {
-  width: 100%;
+  width: calc(100% - 320px);
   height: 12px;
   background: var(--grid);
   border: 2px solid var(--purple);
@@ -429,6 +432,20 @@ body {
   letter-spacing: 0.03em;
 }
 .tip span { color: var(--yellow); }
+
+/* ── GMOD NATIVE UI VERSTECKEN ── */
+/* Versteckt den nativen GMod Ladebalken */
+#loading_popup,
+#loading_bar,
+.loading_popup,
+.loading_bar,
+#gmod_loading,
+body > div[style*="position: fixed"],
+body > div[style*="position:fixed"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
 
 /* Floating pixel symbols */
 @keyframes floatPixel {
@@ -547,10 +564,12 @@ body {
 <div class="bottom">
   <div class="progress-header">
     <div class="progress-msg" id="loadMsg">VERBINDE MIT SERVER...</div>
-    <div class="progress-pct" id="pctTxt">0%</div>
   </div>
-  <div class="progress-track">
-    <div class="progress-bar" id="pbar"></div>
+  <div style="display:flex;align-items:center;gap:10px;width:calc(100% - 320px);">
+    <div class="progress-track" style="flex:1;">
+      <div class="progress-bar" id="pbar"></div>
+    </div>
+    <div class="progress-pct" id="pctTxt" style="flex-shrink:0;">0%</div>
   </div>
   <div class="tip" id="tip">&gt; TIPP: <span>Verrate niemanden... außer du bist der Traitor.</span></div>
 </div>
