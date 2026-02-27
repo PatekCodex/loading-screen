@@ -671,19 +671,20 @@ setInterval(function(){ animVis(isPlaying); }, 85);
 var aud = document.getElementById('aud');
 var playlist = [], curTrk = 0, isPlaying = false;
 
-fetch('playlist.json')
-  .then(function(r){ return r.json(); })
-  .then(function(data){
-    playlist = data;
-    loadTrk(0);
-    document.addEventListener('click', tryPlay);
-    document.addEventListener('keydown', tryPlay);
-    setTimeout(tryPlay, 500);
-  })
-  .catch(function(){
-    document.getElementById('trackName').textContent = 'Keine playlist.json';
-    document.getElementById('trackArtist').textContent = 'Erstelle playlist.json!';
-  });
+// Hardcoded playlist - kein fetch nötig
+playlist = [
+  { name: "Cheri Cheri Lady",           artist: "Modern Talking",              file: "music/cheri_cheri_lady_-_modern_talking___edit_audio_.mp3" },
+  { name: "On My Own",                  artist: "Darci",                       file: "music/Darci_-_On_My_Own__edit_audio_.mp3" },
+  { name: "The Hills x After Hours",    artist: "The Weeknd",                  file: "music/the_hills_x_after_hours_-_the_weeknd__edit_audio_.mp3" },
+  { name: "Government Hooker (Remix)",  artist: "Lady Gaga",                   file: "music/Government_Hooker__d00nik_Remix___Lady_Gaga____Edit_Audio____AudioWizard.mp3" },
+  { name: "Senorita",                   artist: "Shawn Mendes & Camila Cabello",file: "music/Senorita_-_Shawn_Mendes__Camila_Cabello__Edit_Audio_.mp3" },
+  { name: "Animals (Slowed)",           artist: "Maroon 5",                    file: "music/animals_-_maroon_5__slowed___edit_audio_.mp3" },
+  { name: "Agora Hills",                artist: "Doja Cat",                    file: "music/Agora_Hills__I_wanna_show_you_off__-_Doja_Cat__Edit_Audio_.mp3" }
+];
+loadTrk(0);
+document.addEventListener('click', tryPlay);
+document.addEventListener('keydown', tryPlay);
+setTimeout(tryPlay, 500);
 
 function loadTrk(idx) {
   var t = playlist[idx];
