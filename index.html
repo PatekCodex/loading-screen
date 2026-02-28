@@ -685,7 +685,8 @@ playlist = [
   { name: "Animals (Slowed)",           artist: "Maroon 5",                      file: "music/06_animals.mp3" },
   { name: "Agora Hills",                artist: "Doja Cat",                      file: "music/07_agorahills.mp3" }
 ];
-loadTrk(0);
+// Zufälliger Start-Track bei jedem Laden
+loadTrk(Math.floor(Math.random() * playlist.length));
 // GMod startet Musik über GameDetails/SetStatusChanged callbacks
 // Fallback: nach 2 Sekunden nochmal versuchen
 setTimeout(tryPlay, 2000);
