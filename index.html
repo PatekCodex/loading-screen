@@ -674,6 +674,7 @@ setInterval(function(){ animVis(isPlaying); }, 85);
 // ── MUSIK ──
 var aud = document.getElementById('aud');
 var playlist = [], curTrk = 0, isPlaying = false;
+aud.volume = 0.4; // 40% Lautstärke
 
 // Hardcoded playlist - kein fetch nötig
 playlist = [
