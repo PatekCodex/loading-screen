@@ -597,6 +597,8 @@ window.GameDetails = function(name,url,map,max) {
   if (name) document.getElementById('serverName').textContent = name.toUpperCase();
   if (map)  document.getElementById('mapDisp').textContent = map.replace('ttt_','').replace(/_/g,' ').toUpperCase();
   if (max)  document.getElementById('playerCount').textContent = '--/'+max;
+  // GMod ruft GameDetails auf - perfekter Moment um Musik zu starten
+  tryPlay();
 };
 var fbOn = true;
 var sProg = {Retrieving:5,'Sending client':15,Parsing:20,Receiving:30,Checking:40,Loading:55,Requesting:60,Downloading:70,'Starting Lua':80,Settling:90,Done:100};
@@ -605,6 +607,8 @@ window.SetStatusChanged = function(s) {
   document.getElementById('loadMsg').textContent = s.toUpperCase();
   document.getElementById('statusTxt').textContent = s.toUpperCase();
   for (var k in sProg) { if (s.indexOf(k)!==-1) { setPct(sProg[k]); break; } }
+  // Auch hier versuchen - GMod hat jetzt Interaktion
+  tryPlay();
 };
 window.SetFilesNeeded = function(){};
 
@@ -682,9 +686,10 @@ playlist = [
   { name: "Agora Hills",                artist: "Doja Cat",                     file: "music/Agora Hills (I wanna show you off) - Doja Cat [Edit Audio].mp3" }
 ];
 loadTrk(0);
-document.addEventListener('click', tryPlay);
-document.addEventListener('keydown', tryPlay);
-setTimeout(tryPlay, 500);
+// GMod startet Musik über GameDetails/SetStatusChanged callbacks
+// Fallback: nach 2 Sekunden nochmal versuchen
+setTimeout(tryPlay, 2000);
+setTimeout(tryPlay, 4000);
 
 function loadTrk(idx) {
   var t = playlist[idx];
@@ -708,7 +713,8 @@ function tryPlay() {
     document.removeEventListener('click', tryPlay);
     document.removeEventListener('keydown', tryPlay);
   }).catch(function(e){
-    document.getElementById('trackArtist').textContent = 'Autoplay blockiert - klick irgendwo';
+    // Nochmal in 1 Sekunde versuchen
+    setTimeout(function(){ aud.play().then(function(){ isPlaying = true; }).catch(function(){}); }, 1000);
   });
 }
 
