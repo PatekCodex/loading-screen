@@ -38,7 +38,7 @@ body { background:var(--bg); color:var(--text); font-family:'Press Start 2P',mon
 .mtn-front::after { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,rgba(255,45,120,0.9),var(--pink),rgba(255,45,120,0.9),transparent); box-shadow:0 0 14px var(--pink); }
 
 /* Horizon glow */
-.horizon { position:absolute; bottom:22%; left:0; right:0; height:3px; background:linear-gradient(90deg,transparent,var(--pink) 20%,var(--cyan) 50%,var(--pink) 80%,transparent); box-shadow:0 0 20px var(--pink),0 0 40px rgba(180,0,255,0.4); }
+
 
 /* Ocean */
 .ocean { position:absolute; bottom:0; left:0; right:0; height:22%; background:linear-gradient(180deg,#10001e 0%,#07000d 100%); overflow:hidden; }
@@ -127,9 +127,21 @@ body { background:var(--bg); color:var(--text); font-family:'Press Start 2P',mon
     <span class="css-sun-title-bot">CRAZY PEOPLE</span>
     <div class="css-sun"></div>
   </div>
-  <div class="mtn-back"></div>
-  <div class="mtn-front"></div>
-  <div class="horizon"></div>
+  <svg class="mtn-svg" viewBox="0 0 1440 220" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="glow-purple"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="glow-pink"><feGaussianBlur stdDeviation="4" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <!-- Back mountains -->
+    <polygon points="0,220 0,140 45,90 115,140 160,55 215,120 290,35 360,110 420,65 490,130 565,20 630,100 695,75 770,125 820,45 900,110 960,65 1030,120 1100,30 1170,105 1240,60 1300,115 1370,50 1440,90 1440,220" fill="#1a0030" filter="url(#glow-purple)"/>
+    <polyline points="0,140 45,90 115,140 160,55 215,120 290,35 360,110 420,65 490,130 565,20 630,100 695,75 770,125 820,45 900,110 960,65 1030,120 1100,30 1170,105 1240,60 1300,115 1370,50 1440,90" fill="none" stroke="rgba(180,0,255,0.8)" stroke-width="1.5"/>
+    <!-- Front mountains -->
+    <polygon points="0,220 0,165 55,120 100,155 145,85 195,145 255,70 320,135 380,100 440,148 500,55 560,125 620,160 680,90 740,138 800,105 860,148 920,65 980,135 1040,98 1095,143 1155,108 1215,88 1290,138 1360,112 1440,145 1440,220" fill="#0d0020" filter="url(#glow-pink)"/>
+    <polyline points="0,165 55,120 100,155 145,85 195,145 255,70 320,135 380,100 440,148 500,55 560,125 620,160 680,90 740,138 800,105 860,148 920,65 980,135 1040,98 1095,143 1155,108 1215,88 1290,138 1360,112 1440,145" fill="none" stroke="rgba(255,45,120,0.9)" stroke-width="2"/>
+    <!-- Horizon glow line -->
+    <line x1="0" y1="218" x2="1440" y2="218" stroke="url(#hgrad)" stroke-width="3"/>
+    <defs><linearGradient id="hgrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="transparent"/><stop offset="20%" stop-color="#ff2d78"/><stop offset="50%" stop-color="#00f5ff"/><stop offset="80%" stop-color="#ff2d78"/><stop offset="100%" stop-color="transparent"/></linearGradient></defs>
+  </svg>
   <div class="sun-refl"></div>
   <div class="ocean">
     <div class="wave"></div><div class="wave"></div><div class="wave"></div>
