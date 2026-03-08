@@ -31,12 +31,8 @@ body {
   flex-direction: column;
 }
 
-/* ══════════════════════════════
-   BACKGROUND SCENE
-══════════════════════════════ */
 .scene {
   position: fixed; inset: 0; z-index: 0;
-  /* Sky */
   background: linear-gradient(180deg,
     #04000a 0%,
     #0c0018 25%,
@@ -47,7 +43,6 @@ body {
   );
 }
 
-/* Stars */
 .stars { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 .star {
   position: absolute;
@@ -58,7 +53,6 @@ body {
 }
 @keyframes twinkle { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.1;transform:scale(0.5);} }
 
-/* Sun */
 .sun-wrap {
   position: fixed;
   left: 50%;
@@ -70,7 +64,6 @@ body {
   align-items: center;
 }
 
-/* Title above sun */
 .sun-label {
   text-align: center;
   margin-bottom: 10px;
@@ -118,7 +111,6 @@ body {
   0%,100% { box-shadow: 0 0 40px rgba(255,45,120,0.8), 0 0 80px rgba(180,0,255,0.5), 0 0 160px rgba(255,45,120,0.2); }
   50%      { box-shadow: 0 0 60px rgba(255,45,120,1),   0 0 120px rgba(180,0,255,0.8), 0 0 200px rgba(255,45,120,0.3); }
 }
-/* Sun stripe lines */
 .sun::after {
   content: '';
   position: absolute;
@@ -135,7 +127,6 @@ body {
     transparent 29px, transparent 200px
   );
 }
-/* Sun horizon reflection */
 .sun-reflection {
   position: fixed;
   left: 50%; transform: translateX(-50%);
@@ -149,7 +140,6 @@ body {
 }
 @keyframes reflShimmer { 0%,100%{width:4px;opacity:0.5;} 50%{width:12px;opacity:0.8;} }
 
-/* Mountains back */
 .mtn-back {
   position: fixed;
   bottom: 28%;
@@ -175,7 +165,6 @@ body {
   box-shadow: 0 0 10px var(--purple);
 }
 
-/* Mountains front */
 .mtn-front {
   position: fixed;
   bottom: 22%;
@@ -201,7 +190,6 @@ body {
   box-shadow: 0 0 12px var(--pink);
 }
 
-/* Horizon glow line */
 .horizon {
   position: fixed;
   bottom: 22%;
@@ -211,7 +199,6 @@ body {
   box-shadow: 0 0 16px var(--pink), 0 0 32px rgba(180,0,255,0.4);
 }
 
-/* Ocean */
 .ocean {
   position: fixed;
   bottom: 0; left: 0; right: 0;
@@ -243,15 +230,11 @@ body {
   100% { transform:translateX(-5%) scaleX(0.95); opacity:0;   }
 }
 
-/* Scanlines */
 .scanlines {
   position: fixed; inset: 0; z-index: 100; pointer-events: none;
   background: repeating-linear-gradient(to bottom, transparent 0, transparent 2px, rgba(0,0,0,0.12) 2px, rgba(0,0,0,0.12) 4px);
 }
 
-/* ══════════════════════════════
-   TOPBAR
-══════════════════════════════ */
 .topbar {
   position: relative; z-index: 200;
   display: flex; align-items: center; justify-content: space-between;
@@ -274,9 +257,6 @@ body {
 .tb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); box-shadow: 0 0 8px var(--pink); }
 @keyframes blink { 50%{opacity:0.25;} }
 
-/* ══════════════════════════════
-   LADEBALKEN (direkt unter Topbar)
-══════════════════════════════ */
 .loader {
   position: relative; z-index: 200;
   flex-shrink: 0;
@@ -315,9 +295,6 @@ body {
 }
 @keyframes cur { 50%{opacity:0;} }
 
-/* ══════════════════════════════
-   MAIN CONTENT
-══════════════════════════════ */
 .main {
   flex: 1;
   display: grid;
@@ -327,10 +304,8 @@ body {
   min-height: 0;
 }
 
-/* ── LEFT ── */
 .left { position: relative; display: flex; flex-direction: column; justify-content: flex-end; }
 
-/* Info boxes at bottom left */
 .info-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -362,7 +337,6 @@ body {
   text-transform: uppercase; margin-top: 3px;
 }
 
-/* Tip box */
 .tip-area {
   padding: 8px 16px;
   background: rgba(7,0,13,0.82);
@@ -376,7 +350,6 @@ body {
 }
 .tip-txt span { color: var(--yellow); }
 
-/* ── RIGHT PANEL ── */
 .right {
   border-left: 2px solid rgba(180,0,255,0.5);
   box-shadow: -8px 0 30px rgba(180,0,255,0.15);
@@ -396,7 +369,6 @@ body {
 }
 .panel-hdr::before { content: '▶'; font-size: 0.38rem; color: var(--pink); }
 
-/* Music */
 .music-block { padding: 8px 14px 10px; flex-shrink: 0; }
 .now-track {
   font-family: 'VT323', monospace; font-size: 1rem;
@@ -409,7 +381,6 @@ body {
 .mus-prog-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--purple), var(--pink)); box-shadow: 0 0 6px var(--pink); transition: width 1s linear; }
 .mus-time { display: flex; justify-content: space-between; font-family: 'VT323', monospace; font-size: 0.62rem; color: var(--dim); }
 
-/* Visualiser */
 .vis-block { padding: 4px 14px 8px; flex-shrink: 0; }
 .vis-bars {
   display: flex; align-items: flex-end; gap: 2px;
@@ -427,7 +398,6 @@ body {
   transition: height 0.08s ease;
 }
 
-/* Players */
 .players-block { flex: 1; display: flex; flex-direction: column; min-height: 0; border-top: 1px solid rgba(180,0,255,0.15); }
 .players-scroll { flex: 1; overflow-y: auto; padding: 4px 0; }
 .players-scroll::-webkit-scrollbar { width: 3px; }
@@ -449,11 +419,9 @@ body {
 </head>
 <body>
 
-<!-- SCENE -->
 <div class="scene"></div>
 <div class="stars" id="stars"></div>
 
-<!-- SUN + REFLECTION -->
 <div class="sun-wrap">
   <div class="sun-label">
     <span class="sun-label-top">HOUSE OF</span>
@@ -463,12 +431,10 @@ body {
 </div>
 <div class="sun-reflection"></div>
 
-<!-- MOUNTAINS -->
 <div class="mtn-back"></div>
 <div class="mtn-front"></div>
 <div class="horizon"></div>
 
-<!-- OCEAN -->
 <div class="ocean">
   <div class="wave"></div><div class="wave"></div><div class="wave"></div>
   <div class="wave"></div><div class="wave"></div><div class="wave"></div>
@@ -477,11 +443,11 @@ body {
 
 <div class="scanlines"></div>
 
-<!-- TOPBAR -->
+<!-- TOPBAR: Name ist jetzt fix hartcodiert, GameDetails überschreibt ihn NICHT mehr -->
 <div class="topbar">
   <div class="tb-left">
     <img class="tb-logo" src="p.png" alt="">
-    <span class="tb-name" id="serverName">HOUSE OF CRAZY PEOPLE</span>
+    <span class="tb-name">HOUSE OF CRAZY PEOPLE</span>
   </div>
   <div class="tb-status">
     <div class="tb-dot"></div>
@@ -489,7 +455,6 @@ body {
   </div>
 </div>
 
-<!-- LADEBALKEN (direkt unter Topbar, kein Konflikt mit GMod) -->
 <div class="loader">
   <div class="loader-top">
     <div class="loader-msg" id="loadMsg">VERBINDE MIT SERVER...</div>
@@ -500,10 +465,8 @@ body {
   </div>
 </div>
 
-<!-- MAIN -->
 <div class="main">
 
-  <!-- LEFT -->
   <div class="left">
     <div class="tip-area">
       <div class="tip-lbl">▶ TIPP</div>
@@ -529,7 +492,6 @@ body {
     </div>
   </div>
 
-  <!-- RIGHT -->
   <div class="right">
 
     <div class="panel-hdr">NOW PLAYING</div>
@@ -594,10 +556,9 @@ function setPct(p) {
   }
 }
 window.GameDetails = function(name,url,map,max) {
-  if (name) document.getElementById('serverName').textContent = name.toUpperCase();
+  // Name wird NICHT mehr ins Topbar geschrieben – bleibt immer "HOUSE OF CRAZY PEOPLE"
   if (map)  document.getElementById('mapDisp').textContent = map.replace('ttt_','').replace(/_/g,' ').toUpperCase();
   if (max)  document.getElementById('playerCount').textContent = '--/'+max;
-  // GMod ruft GameDetails auf - perfekter Moment um Musik zu starten
   tryPlay();
 };
 var fbOn = true;
@@ -607,7 +568,6 @@ window.SetStatusChanged = function(s) {
   document.getElementById('loadMsg').textContent = s.toUpperCase();
   document.getElementById('statusTxt').textContent = s.toUpperCase();
   for (var k in sProg) { if (s.indexOf(k)!==-1) { setPct(sProg[k]); break; } }
-  // Auch hier versuchen - GMod hat jetzt Interaktion
   tryPlay();
 };
 window.SetFilesNeeded = function(){};
@@ -674,22 +634,47 @@ setInterval(function(){ animVis(isPlaying); }, 85);
 // ── MUSIK ──
 var aud = document.getElementById('aud');
 var playlist = [], curTrk = 0, isPlaying = false;
-aud.volume = 0.4; // 40% Lautstärke
 
-// Hardcoded playlist - kein fetch nötig
+// ── LAUTSTÄRKE-NORMALISIERUNG ──
+// Jeder Track hat einen eigenen gain-Wert (1.0 = normal, <1.0 = leiser)
+// Passe die Werte hier an falls ein Song noch zu laut/leise ist
+var AudioCtx = window.AudioContext || window.webkitAudioContext;
+var actx, gainNode, sourceConnected = false;
+
+function setupAudioContext() {
+  if (actx) return;
+  try {
+    actx = new AudioCtx();
+    gainNode = actx.createGain();
+    gainNode.connect(actx.destination);
+    var src = actx.createMediaElementSource(aud);
+    src.connect(gainNode);
+    sourceConnected = true;
+  } catch(e) {
+    // Fallback: kein AudioContext, nur aud.volume
+  }
+}
+
+function setTrackVolume(gain) {
+  if (gainNode) {
+    gainNode.gain.value = gain;
+  } else {
+    // Fallback ohne AudioContext
+    aud.volume = Math.min(1, gain * 0.5);
+  }
+}
+
 playlist = [
-  { name: "Cheri Cheri Lady",           artist: "Modern Talking",                file: "music/01_cheri.mp3" },
-  { name: "On My Own",                  artist: "Darci",                         file: "music/02_onmyown.mp3" },
-  { name: "The Hills x After Hours",    artist: "The Weeknd",                    file: "music/03_hills.mp3" },
-  { name: "Government Hooker (Remix)",  artist: "Lady Gaga",                     file: "music/04_hooker.mp3" },
-  { name: "Senorita",                   artist: "Shawn Mendes & Camila Cabello",  file: "music/05_senorita.mp3" },
-  { name: "Animals (Slowed)",           artist: "Maroon 5",                      file: "music/06_animals.mp3" },
-  { name: "Agora Hills",                artist: "Doja Cat",                      file: "music/07_agorahills.mp3" }
+  { name: "Cheri Cheri Lady",           artist: "Modern Talking",                file: "music/01_cheri.mp3",      gain: 0.5 },
+  { name: "On My Own",                  artist: "Darci",                         file: "music/02_onmyown.mp3",    gain: 0.5 },
+  { name: "The Hills x After Hours",    artist: "The Weeknd",                    file: "music/03_hills.mp3",      gain: 0.5 },
+  { name: "Government Hooker (Remix)",  artist: "Lady Gaga",                     file: "music/04_hooker.mp3",     gain: 0.5 },
+  { name: "Senorita",                   artist: "Shawn Mendes & Camila Cabello", file: "music/05_senorita.mp3",   gain: 0.5 },
+  { name: "Animals (Slowed)",           artist: "Maroon 5",                      file: "music/06_animals.mp3",    gain: 0.5 },
+  { name: "Agora Hills",                artist: "Doja Cat",                      file: "music/07_agorahills.mp3", gain: 0.5 }
 ];
-// Zufälliger Start-Track bei jedem Laden
+
 loadTrk(Math.floor(Math.random() * playlist.length));
-// GMod startet Musik über GameDetails/SetStatusChanged callbacks
-// Fallback: nach 2 Sekunden nochmal versuchen
 setTimeout(tryPlay, 2000);
 setTimeout(tryPlay, 4000);
 
@@ -699,6 +684,8 @@ function loadTrk(idx) {
   curTrk = idx;
   document.getElementById('trackName').textContent = t.name||'Unbekannt';
   document.getElementById('trackArtist').textContent = t.artist||'--';
+  // Lautstärke für diesen Track setzen
+  setTrackVolume(t.gain !== undefined ? t.gain : 0.5);
   if (t.file) {
     aud.src = t.file;
     aud.load();
@@ -710,12 +697,11 @@ function loadTrk(idx) {
 
 function tryPlay() {
   if (isPlaying) return;
+  setupAudioContext();
+  if (actx && actx.state === 'suspended') actx.resume();
   aud.play().then(function(){
     isPlaying = true;
-    document.removeEventListener('click', tryPlay);
-    document.removeEventListener('keydown', tryPlay);
-  }).catch(function(e){
-    // Nochmal in 1 Sekunde versuchen
+  }).catch(function(){
     setTimeout(function(){ aud.play().then(function(){ isPlaying = true; }).catch(function(){}); }, 1000);
   });
 }
