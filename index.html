@@ -963,6 +963,31 @@ var TEAM_DATA = [
 
 var teamCache = {};
 
+async function getSteamProfile(steam64) {
+
+  try {
+
+    const res = await fetch(
+      "https://corsproxy.io/?https://steamcommunity.com/profiles/" +
+      steam64 +
+      "?xml=1"
+    );
+
+    const text = await res.text();
+
+    const xml = new DOMParser().parseFromString(text,"text/xml");
+
+    const name = xml.querySelector("steamID")?.textContent || "Unknown";
+    const avatar = xml.querySelector("avatarFull")?.textContent || "";
+
+    return {name, avatar};
+
+  } catch {
+    return {name:"Unknown", avatar:""};
+  }
+
+}
+
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
