@@ -7,7 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
 :root {
   --pink:   #ff2d78;
   --purple: #b400ff;
@@ -18,216 +17,54 @@
   --bg2:    #0d0018;
   --dim:    #4a2060;
   --text:   #d8a0f8;
-  --gmod:   36px;
 }
-
 html, body { width: 100%; height: 100%; overflow: hidden; }
-
 body {
-  background: var(--bg);
+  background: #07000d;
   color: var(--text);
   font-family: 'Press Start 2P', monospace;
   display: flex;
   flex-direction: column;
 }
 
-.scene {
-  position: fixed; inset: 0; z-index: 0;
-  background: linear-gradient(180deg,
-    #04000a 0%,
-    #0c0018 25%,
-    #160028 45%,
-    #1e0035 58%,
-    #140025 70%,
-    #08000f 100%
-  );
+/* Canvas fills the whole screen behind everything */
+#bgCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
 }
 
-.stars { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
-.star {
-  position: absolute;
-  border-radius: 50%;
-  background: #fff;
-  animation: twinkle var(--d, 3s) ease-in-out infinite;
-  animation-delay: var(--dl, 0s);
-}
-@keyframes twinkle { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.1;transform:scale(0.5);} }
-
-.sun-wrap {
+/* HTML sun label – reliable font rendering */
+#sunLabel {
   position: fixed;
   left: 50%;
-  bottom: 34%;
   transform: translateX(-50%);
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.sun-label {
+  top: 12%;
+  z-index: 10;
   text-align: center;
-  margin-bottom: 10px;
+  pointer-events: none;
   animation: labelFlicker 8s ease-in-out infinite;
 }
 @keyframes labelFlicker {
   0%,88%,100%{opacity:1;} 90%{opacity:0.3;} 92%{opacity:1;} 95%{opacity:0.5;} 97%{opacity:1;}
 }
-.sun-label-top {
+#sunLabel .top {
   display: block;
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  color: var(--cyan);
-  text-shadow: 0 0 20px var(--cyan), 0 0 40px rgba(0,245,255,0.4);
-  margin-bottom: 5px;
+  font-size: 1.1rem;
+  letter-spacing: 0.18em;
+  color: #00f5ff;
+  text-shadow: 0 0 24px #00f5ff, 0 0 50px rgba(0,245,255,0.6);
+  margin-bottom: 10px;
 }
-.sun-label-bot {
+#sunLabel .bot {
   display: block;
-  font-size: 0.9rem;
-  letter-spacing: 0.08em;
-  color: var(--yellow);
-  text-shadow: 0 0 20px var(--yellow), 0 0 40px rgba(255,230,0,0.5), 3px 3px 0 rgba(180,0,255,0.5);
-}
-
-.sun {
-  width: 180px; height: 180px;
-  border-radius: 50%;
-  background: linear-gradient(180deg,
-    #fff5a0 0%,
-    #ffe600 15%,
-    #ff8c00 35%,
-    #ff2d78 60%,
-    #cc00dd 80%,
-    #7700bb 100%
-  );
-  box-shadow:
-    0 0 40px rgba(255,45,120,0.8),
-    0 0 80px rgba(180,0,255,0.5),
-    0 0 160px rgba(255,45,120,0.2);
-  overflow: hidden;
-  position: relative;
-  animation: sunGlow 4s ease-in-out infinite;
-}
-@keyframes sunGlow {
-  0%,100% { box-shadow: 0 0 40px rgba(255,45,120,0.8), 0 0 80px rgba(180,0,255,0.5), 0 0 160px rgba(255,45,120,0.2); }
-  50%      { box-shadow: 0 0 60px rgba(255,45,120,1),   0 0 120px rgba(180,0,255,0.8), 0 0 200px rgba(255,45,120,0.3); }
-}
-.sun::after {
-  content: '';
-  position: absolute;
-  top: 50%; left: 0; right: 0; bottom: 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    var(--bg) 0, var(--bg) 4px,
-    transparent 4px, transparent 10px,
-    var(--bg) 10px, var(--bg) 13px,
-    transparent 13px, transparent 20px,
-    var(--bg) 20px, var(--bg) 22px,
-    transparent 22px, transparent 28px,
-    var(--bg) 28px, var(--bg) 29px,
-    transparent 29px, transparent 200px
-  );
-}
-.sun-reflection {
-  position: fixed;
-  left: 50%; transform: translateX(-50%);
-  bottom: 0;
-  width: 4px;
-  height: 34%;
-  background: linear-gradient(to bottom, rgba(255,45,120,0.4), transparent);
-  box-shadow: 0 0 20px rgba(255,45,120,0.3);
-  z-index: 3;
-  animation: reflShimmer 3s ease-in-out infinite;
-}
-@keyframes reflShimmer { 0%,100%{width:4px;opacity:0.5;} 50%{width:12px;opacity:0.8;} }
-
-.mtn-back {
-  position: fixed;
-  bottom: 28%;
-  left: 0; right: 0;
-  height: 160px;
-  z-index: 4;
-  background: #0e001e;
-  clip-path: polygon(
-    0 100%, 0 60%,
-    3% 35%, 7% 55%, 11% 20%, 15% 48%, 20% 10%,
-    25% 42%, 29% 18%, 34% 45%, 39% 5%,
-    44% 38%, 48% 22%, 53% 50%, 57% 12%,
-    62% 40%, 66% 25%, 71% 52%, 76% 8%,
-    81% 42%, 85% 20%, 89% 48%, 93% 15%,
-    97% 45%, 100% 30%, 100% 100%
-  );
-  filter: drop-shadow(0 -3px 8px rgba(180,0,255,0.5));
-}
-.mtn-back::after {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: linear-gradient(90deg, transparent, rgba(180,0,255,0.8), var(--purple), rgba(180,0,255,0.8), transparent);
-  box-shadow: 0 0 10px var(--purple);
-}
-
-.mtn-front {
-  position: fixed;
-  bottom: 22%;
-  left: 0; right: 0;
-  height: 130px;
-  z-index: 5;
-  background: #09000f;
-  clip-path: polygon(
-    0 100%, 0 75%,
-    4% 45%, 8% 68%, 13% 30%, 18% 60%, 23% 22%,
-    28% 55%, 33% 35%, 38% 65%, 43% 18%,
-    48% 50%, 52% 72%, 57% 28%, 62% 58%,
-    67% 38%, 72% 65%, 77% 20%, 82% 55%,
-    87% 35%, 91% 62%, 95% 40%, 100% 58%,
-    100% 100%
-  );
-  filter: drop-shadow(0 -4px 6px rgba(255,45,120,0.5));
-}
-.mtn-front::after {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255,45,120,0.9), var(--pink), rgba(255,45,120,0.9), transparent);
-  box-shadow: 0 0 12px var(--pink);
-}
-
-.horizon {
-  position: fixed;
-  bottom: 22%;
-  left: 0; right: 0; height: 2px;
-  z-index: 6;
-  background: linear-gradient(90deg, transparent 0%, var(--pink) 20%, var(--cyan) 50%, var(--pink) 80%, transparent 100%);
-  box-shadow: 0 0 16px var(--pink), 0 0 32px rgba(180,0,255,0.4);
-}
-
-.ocean {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 22%;
-  z-index: 6;
-  background: linear-gradient(180deg, #100020 0%, #07000d 100%);
-  overflow: hidden;
-}
-.wave {
-  position: absolute; left: -10%; right: -10%;
-  height: 1px;
-  border-radius: 50%;
-  animation: waveAnim linear infinite;
-  opacity: 0;
-}
-.wave:nth-child(1)  { top: 5%;  height:2px; background: linear-gradient(90deg,transparent,rgba(255,45,120,0.7),transparent); animation-duration:5s;  animation-delay:0s;   }
-.wave:nth-child(2)  { top: 15%; height:1px; background: linear-gradient(90deg,transparent,rgba(180,0,255,0.5),transparent); animation-duration:6.5s;animation-delay:0.8s; }
-.wave:nth-child(3)  { top: 27%; height:2px; background: linear-gradient(90deg,transparent,rgba(0,245,255,0.4),transparent); animation-duration:7s;  animation-delay:1.5s; }
-.wave:nth-child(4)  { top: 40%; height:1px; background: linear-gradient(90deg,transparent,rgba(255,45,120,0.3),transparent); animation-duration:8s;  animation-delay:0.3s; }
-.wave:nth-child(5)  { top: 55%; height:1px; background: linear-gradient(90deg,transparent,rgba(180,0,255,0.25),transparent);animation-duration:9s;  animation-delay:1.2s; }
-.wave:nth-child(6)  { top: 68%; height:1px; background: linear-gradient(90deg,transparent,rgba(0,245,255,0.2),transparent); animation-duration:10s; animation-delay:2s;   }
-.wave:nth-child(7)  { top: 80%; height:1px; background: linear-gradient(90deg,transparent,rgba(255,45,120,0.15),transparent);animation-duration:11s; animation-delay:0.6s; }
-.wave:nth-child(8)  { top: 90%; height:1px; background: linear-gradient(90deg,transparent,rgba(180,0,255,0.1),transparent); animation-duration:12s; animation-delay:1.8s; }
-@keyframes waveAnim {
-  0%   { transform:translateX(-5%) scaleX(0.95); opacity:0;   }
-  10%  { opacity:1; }
-  50%  { transform:translateX(5%)  scaleX(1.05); opacity:0.8; }
-  90%  { opacity:1; }
-  100% { transform:translateX(-5%) scaleX(0.95); opacity:0;   }
+  font-size: 2.2rem;
+  letter-spacing: 0.1em;
+  color: #ffe600;
+  text-shadow: 0 0 30px #ffe600, 0 0 60px rgba(255,230,0,0.7), 4px 4px 0 rgba(180,0,255,0.7);
+  white-space: nowrap;
 }
 
 .scanlines {
@@ -280,10 +117,7 @@ body {
 }
 .loader-bar {
   height: 100%; width: 0%;
-  background: repeating-linear-gradient(90deg,
-    var(--pink) 0, var(--pink) 8px,
-    var(--purple) 8px, var(--purple) 16px
-  );
+  background: repeating-linear-gradient(90deg, var(--pink) 0, var(--pink) 8px, var(--purple) 8px, var(--purple) 16px);
   box-shadow: 0 0 16px var(--pink);
   transition: width 0.3s ease;
   position: relative;
@@ -303,7 +137,6 @@ body {
   overflow: hidden;
   min-height: 0;
 }
-
 .left { position: relative; display: flex; flex-direction: column; justify-content: flex-end; }
 
 .info-row {
@@ -319,8 +152,7 @@ body {
   background: rgba(180,0,255,0.05);
   border: 1px solid rgba(180,0,255,0.35);
   padding: 8px 10px;
-  position: relative;
-  overflow: hidden;
+  position: relative; overflow: hidden;
 }
 .info-box::before {
   content: '';
@@ -332,10 +164,7 @@ body {
   color: var(--pink); text-shadow: 0 0 10px var(--pink); line-height: 1;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.info-key {
-  font-size: 0.28rem; letter-spacing: 0.15em; color: var(--dim);
-  text-transform: uppercase; margin-top: 3px;
-}
+.info-key { font-size: 0.28rem; letter-spacing: 0.15em; color: var(--dim); text-transform: uppercase; margin-top: 3px; }
 
 .tip-area {
   padding: 8px 16px;
@@ -358,7 +187,6 @@ body {
   overflow: hidden;
   backdrop-filter: blur(4px);
 }
-
 .panel-hdr {
   font-size: 0.36rem; letter-spacing: 0.18em; color: var(--cyan);
   text-shadow: 0 0 8px var(--cyan);
@@ -373,8 +201,7 @@ body {
 .now-track {
   font-family: 'VT323', monospace; font-size: 1rem;
   color: var(--yellow); text-shadow: 0 0 10px var(--yellow);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  margin-bottom: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
 }
 .now-artist { font-family: 'VT323', monospace; font-size: 0.78rem; color: var(--dim); margin-bottom: 8px; }
 .mus-prog { height: 3px; background: rgba(180,0,255,0.2); border: 1px solid rgba(180,0,255,0.3); cursor: pointer; margin-bottom: 3px; }
@@ -388,8 +215,7 @@ body {
   background: rgba(0,0,0,0.4);
   border: 1px solid rgba(180,0,255,0.2);
   border-radius: 1px;
-  padding: 3px;
-  overflow: hidden;
+  padding: 3px; overflow: hidden;
 }
 .vbar {
   flex: 1; min-height: 2px; border-radius: 1px 1px 0 0;
@@ -398,52 +224,122 @@ body {
   transition: height 0.08s ease;
 }
 
-.players-block { flex: 1; display: flex; flex-direction: column; min-height: 0; border-top: 1px solid rgba(180,0,255,0.15); }
-.players-scroll { flex: 1; overflow-y: auto; padding: 4px 0; }
-.players-scroll::-webkit-scrollbar { width: 3px; }
-.players-scroll::-webkit-scrollbar-thumb { background: var(--purple); }
-.p-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 5px 14px;
-  border-bottom: 1px solid rgba(180,0,255,0.07);
-  animation: rowIn 0.3s ease both;
-  animation-delay: calc(var(--i,0) * 0.04s);
+.team-block { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+.team-scroll { flex: 1; overflow-y: auto; padding: 4px 0; }
+.team-scroll::-webkit-scrollbar { width: 3px; }
+.team-scroll::-webkit-scrollbar-thumb { background: var(--purple); }
+
+.tm-row {
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(180,0,255,0.08);
+  position: relative;
 }
-@keyframes rowIn { from{opacity:0;transform:translateX(8px);} to{opacity:1;} }
-.p-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; background: var(--c, var(--purple)); box-shadow: 0 0 5px var(--c, var(--purple)); }
-.p-name { font-family: 'VT323', monospace; font-size: 0.85rem; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.p-ping { font-family: 'VT323', monospace; font-size: 0.72rem; }
-.p-ping.g { color: var(--green); } .p-ping.o { color: var(--yellow); } .p-ping.b { color: var(--pink); }
+.tm-row:hover { background: rgba(180,0,255,0.05); }
+
+.tm-avatar {
+  width: 36px; height: 36px; border-radius: 2px; flex-shrink: 0;
+  border: 1px solid rgba(180,0,255,0.5);
+  background: rgba(180,0,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; position: relative;
+}
+.tm-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tm-avatar-init {
+  font-family: 'VT323', monospace; font-size: 1.3rem; line-height: 1;
+}
+.tm-online-dot {
+  position: absolute; bottom: -2px; right: -2px;
+  width: 8px; height: 8px; border-radius: 50%;
+  border: 1px solid #07000d;
+}
+
+.tm-info { flex: 1; min-width: 0; }
+.tm-name {
+  font-family: 'VT323', monospace; font-size: 1rem;
+  color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.2;
+}
+.tm-name.loading { color: var(--dim); font-size: 0.8rem; }
+.tm-rank {
+  font-size: 0.2rem; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 1px 5px 1px 4px; border-radius: 1px; margin-top: 3px; display: inline-block;
+}
+.tm-sid { font-family: 'VT323', monospace; font-size: 0.6rem; color: var(--dim); margin-top: 1px; }
+
+.tm-del {
+  font-family: 'VT323', monospace; font-size: 1rem;
+  color: transparent; cursor: pointer; padding: 2px 4px; flex-shrink: 0;
+  transition: color 0.15s;
+}
+.tm-row:hover .tm-del { color: var(--dim); }
+.tm-del:hover { color: var(--pink) !important; text-shadow: 0 0 6px var(--pink); }
+
+/* Add form */
+.team-add-btn {
+  margin: 5px 10px 4px;
+  padding: 6px; font-family: 'Press Start 2P', monospace;
+  font-size: 0.28rem; letter-spacing: 0.1em; color: var(--cyan);
+  background: rgba(0,245,255,0.05); border: 1px solid rgba(0,245,255,0.25);
+  cursor: pointer; text-align: center; flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+}
+.team-add-btn:hover { background: rgba(0,245,255,0.12); border-color: var(--cyan); }
+
+.team-form {
+  padding: 8px 10px; flex-shrink: 0;
+  background: rgba(0,0,0,0.4);
+  border-top: 1px solid rgba(180,0,255,0.2);
+  display: none; flex-direction: column; gap: 4px;
+}
+.team-form.open { display: flex; }
+.tf-row { display: flex; gap: 5px; align-items: flex-end; }
+.tf-lbl { font-size: 0.22rem; letter-spacing: 0.1em; color: var(--dim); margin-bottom: 1px; margin-top: 2px; }
+.tf-inp {
+  flex: 1; background: rgba(0,0,0,0.6); border: 1px solid rgba(180,0,255,0.3);
+  color: var(--text); font-family: 'VT323', monospace; font-size: 0.9rem;
+  padding: 3px 7px; min-width: 0; outline: none;
+}
+.tf-inp:focus { border-color: var(--cyan); box-shadow: 0 0 5px rgba(0,245,255,0.25); }
+.tf-inp::placeholder { color: var(--dim); }
+.tf-sel {
+  background: rgba(0,0,0,0.6); border: 1px solid rgba(180,0,255,0.3);
+  color: var(--text); font-family: 'VT323', monospace; font-size: 0.9rem;
+  padding: 3px 5px; outline: none; flex-shrink: 0;
+}
+.tf-hint { font-family: 'VT323', monospace; font-size: 0.65rem; color: var(--dim); margin-top: 1px; }
+.tf-btns { display: flex; gap: 5px; margin-top: 3px; }
+.tf-save {
+  flex: 1; padding: 5px; font-family: 'Press Start 2P', monospace;
+  font-size: 0.25rem; letter-spacing: 0.08em;
+  background: rgba(255,45,120,0.12); border: 1px solid var(--pink);
+  color: var(--pink); cursor: pointer; transition: background 0.2s;
+}
+.tf-save:hover { background: rgba(255,45,120,0.28); }
+.tf-cancel {
+  padding: 5px 8px; font-family: 'Press Start 2P', monospace;
+  font-size: 0.25rem; background: transparent;
+  border: 1px solid rgba(180,0,255,0.3); color: var(--dim); cursor: pointer;
+}
+.tf-cancel:hover { border-color: var(--purple); color: var(--text); }
 .p-empty { padding: 12px 14px; font-family: 'VT323', monospace; font-size: 0.8rem; color: var(--dim); line-height: 2; }
+
 </style>
 </head>
 <body>
 
-<div class="scene"></div>
-<div class="stars" id="stars"></div>
+<!-- CANVAS BACKGROUND -->
+<canvas id="bgCanvas"></canvas>
 
-<div class="sun-wrap">
-  <div class="sun-label">
-    <span class="sun-label-top">HOUSE OF</span>
-    <span class="sun-label-bot">CRAZY PEOPLE</span>
-  </div>
-  <div class="sun"></div>
-</div>
-<div class="sun-reflection"></div>
-
-<div class="mtn-back"></div>
-<div class="mtn-front"></div>
-<div class="horizon"></div>
-
-<div class="ocean">
-  <div class="wave"></div><div class="wave"></div><div class="wave"></div>
-  <div class="wave"></div><div class="wave"></div><div class="wave"></div>
-  <div class="wave"></div><div class="wave"></div>
+<!-- SUN LABEL as HTML so fonts render reliably -->
+<div id="sunLabel">
+  <span class="top">HOUSE OF</span>
+  <span class="bot">CRAZY PEOPLE</span>
 </div>
 
 <div class="scanlines"></div>
 
-<!-- TOPBAR: Name ist jetzt fix hartcodiert, GameDetails überschreibt ihn NICHT mehr -->
 <div class="topbar">
   <div class="tb-left">
     <img class="tb-logo" src="p.png" alt="">
@@ -466,7 +362,6 @@ body {
 </div>
 
 <div class="main">
-
   <div class="left">
     <div class="tip-area">
       <div class="tip-lbl">▶ TIPP</div>
@@ -493,7 +388,6 @@ body {
   </div>
 
   <div class="right">
-
     <div class="panel-hdr">NOW PLAYING</div>
     <div class="music-block">
       <div class="now-track" id="trackName">Lade Musik...</div>
@@ -506,47 +400,437 @@ body {
         <span id="tTot">0:00</span>
       </div>
     </div>
-
     <div class="panel-hdr">VISUALISER</div>
     <div class="vis-block">
       <div class="vis-bars" id="visBars"></div>
     </div>
 
-    <div class="panel-hdr">SPIELER ONLINE</div>
-    <div class="players-block">
-      <div class="players-scroll" id="playerList">
-        <div class="p-empty">&gt; Warte auf<br>&gt; Serverdaten...<br>&gt; _</div>
+    <div class="panel-hdr">TEAM</div>
+    <div class="team-block">
+      <div class="team-scroll" id="teamList"></div>
+      <button class="team-add-btn" onclick="toggleTeamForm()">+ MITGLIED HINZUFÜGEN</button>
+      <div class="team-form" id="teamForm">
+        <div class="tf-lbl">STEAM ID</div>
+        <input class="tf-inp" id="tf-sid" placeholder="STEAM_0:1:XXXXXXXX oder 7656119…" maxlength="25">
+        <div class="tf-hint">Name &amp; Avatar werden automatisch geladen</div>
+        <div class="tf-lbl">RANG</div>
+        <div class="tf-row">
+          <input class="tf-inp" id="tf-rank" placeholder="z.B. Server-Owner" maxlength="20">
+          <select class="tf-sel" id="tf-color">
+            <option value="#ff2d78">Pink</option>
+            <option value="#ffe600">Gold</option>
+            <option value="#00f5ff">Cyan</option>
+            <option value="#00ff88">Grün</option>
+            <option value="#b400ff">Lila</option>
+            <option value="#ff8c00">Orange</option>
+            <option value="#ffffff">Weiß</option>
+          </select>
+        </div>
+        <div class="tf-btns">
+          <button class="tf-save" onclick="saveTeamMember()">SPEICHERN</button>
+          <button class="tf-cancel" onclick="toggleTeamForm()">ABBRUCH</button>
+        </div>
       </div>
     </div>
-
   </div>
 </div>
 
 <audio id="aud" preload="auto"></audio>
 
 <script>
-// ── STARS ──
-var starEl = document.getElementById('stars');
-var starData = [
-  [2,120,40],[1,250,80],[2,380,25],[1,500,65],[2,630,18],[1,770,85],[2,910,42],[1,1060,72],
-  [1,80,155],[2,310,175],[1,460,130],[2,610,195],[1,820,158],[2,970,185],[1,1130,142],
-  [2,170,248],[1,340,275],[2,530,238],[1,720,295],[2,880,258],[1,1040,285],[2,195,325],
-  [1,55,360],[2,290,380],[1,480,345],[2,665,375],[1,855,342],[2,1010,368],[1,1175,350],
-  [3,230,55],[3,580,38],[3,950,72],[3,1160,48],[3,370,175],[3,720,148]
-];
-starData.forEach(function(s) {
-  var el = document.createElement('div');
-  el.className = 'star';
-  el.style.cssText = 'width:'+s[0]+'px;height:'+s[0]+'px;left:'+s[1]+'px;top:'+s[2]+'px;--d:'+(2+Math.random()*3)+'s;--dl:'+(Math.random()*3)+'s;opacity:'+(0.4+Math.random()*0.6);
-  starEl.appendChild(el);
-});
+// ═══════════════════════════════════════════════
+//  CANVAS BACKGROUND RENDERER
+// ═══════════════════════════════════════════════
+var canvas = document.getElementById('bgCanvas');
+var ctx = canvas.getContext('2d');
+var W, H;
+var tick = 0;
 
-// ── URL PARAMS ──
+// Stars data
+var stars = [];
+function initStars() {
+  stars = [];
+  for (var i = 0; i < 120; i++) {
+    stars.push({
+      x: Math.random() * W,
+      y: Math.random() * H * 0.65,
+      r: Math.random() * 1.5 + 0.3,
+      phase: Math.random() * Math.PI * 2,
+      speed: 0.5 + Math.random() * 1.5
+    });
+  }
+}
+
+// Shooting stars
+var shooters = [];
+function spawnShooter() {
+  if (Math.random() < 0.008) {
+    shooters.push({
+      x: Math.random() * W * 0.8,
+      y: Math.random() * H * 0.3,
+      len: 80 + Math.random() * 120,
+      alpha: 1,
+      speed: 6 + Math.random() * 6
+    });
+  }
+}
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  initStars();
+}
+window.addEventListener('resize', resize);
+resize();
+
+// Horizon Y (where ocean meets mountains)
+function horizY() { return H * 0.68; }
+
+function drawSky() {
+  var hy = horizY();
+  var grad = ctx.createLinearGradient(0, 0, 0, hy);
+  grad.addColorStop(0,    '#04000a');
+  grad.addColorStop(0.3,  '#0c0018');
+  grad.addColorStop(0.6,  '#160028');
+  grad.addColorStop(0.85, '#200038');
+  grad.addColorStop(1,    '#140025');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, hy);
+}
+
+function drawStars() {
+  for (var i = 0; i < stars.length; i++) {
+    var s = stars[i];
+    var alpha = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(s.phase + tick * s.speed * 0.01));
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,' + alpha + ')';
+    ctx.fill();
+  }
+}
+
+function drawShooters() {
+  for (var i = shooters.length - 1; i >= 0; i--) {
+    var sh = shooters[i];
+    var grd = ctx.createLinearGradient(sh.x, sh.y, sh.x + sh.len, sh.y + sh.len * 0.4);
+    grd.addColorStop(0, 'rgba(255,255,255,0)');
+    grd.addColorStop(1, 'rgba(255,255,255,' + sh.alpha + ')');
+    ctx.beginPath();
+    ctx.moveTo(sh.x, sh.y);
+    ctx.lineTo(sh.x + sh.len, sh.y + sh.len * 0.4);
+    ctx.strokeStyle = grd;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    sh.x += sh.speed * 2;
+    sh.y += sh.speed * 0.8;
+    sh.alpha -= 0.025;
+    if (sh.alpha <= 0) shooters.splice(i, 1);
+  }
+}
+
+function drawSun() {
+  var cx = W / 2;
+  var hy = horizY();
+  // Large sun radius
+  var sunR = H * 0.16;
+  // Sun CENTER fixed at 42% from top – clearly above all mountains (which peak at ~0.55*hy = ~37% from top)
+  var sunCY = H * 0.42;
+
+  // Position the HTML label just above the sun
+  var labelEl = document.getElementById('sunLabel');
+  if (labelEl) {
+    labelEl.style.top = (sunCY - sunR - 16) + 'px';
+  }
+
+  // Outer glow pulse
+  var glowPulse = 0.8 + 0.2 * Math.sin(tick * 0.02);
+  var glow = ctx.createRadialGradient(cx, sunCY, sunR * 0.5, cx, sunCY, sunR * 3.5);
+  glow.addColorStop(0,   'rgba(255,45,120,' + (0.5 * glowPulse) + ')');
+  glow.addColorStop(0.3, 'rgba(180,0,255,'  + (0.3 * glowPulse) + ')');
+  glow.addColorStop(0.7, 'rgba(180,0,255,0.05)');
+  glow.addColorStop(1,   'rgba(180,0,255,0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(cx, sunCY, sunR * 3.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Sun body – clip to circle
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, sunCY, sunR, 0, Math.PI * 2);
+  ctx.clip();
+
+  // Color gradient
+  var sunGrad = ctx.createLinearGradient(cx, sunCY - sunR, cx, sunCY + sunR);
+  sunGrad.addColorStop(0,    '#fff9c0');
+  sunGrad.addColorStop(0.12, '#ffe600');
+  sunGrad.addColorStop(0.32, '#ff8c00');
+  sunGrad.addColorStop(0.58, '#ff2d78');
+  sunGrad.addColorStop(0.80, '#cc00dd');
+  sunGrad.addColorStop(1,    '#7700bb');
+  ctx.fillStyle = sunGrad;
+  ctx.fillRect(cx - sunR, sunCY - sunR, sunR * 2, sunR * 2);
+
+  // Horizontal stripe lines in lower half
+  ctx.fillStyle = '#07000d';
+  var pos = sunCY + sunR * 0.05;
+  var lineThick = sunR / 18;
+  var gaps2 = [1.8, 2.5, 1.2, 2.8, 1.0, 2.2, 1.4, 2.0, 0.8, 1.8, 1.2, 1.6, 0.8, 1.5, 0.9, 1.4, 0.7, 1.3, 0.7, 1.2, 0.6, 1.1];
+  for (var li = 0; li < gaps2.length; li++) {
+    pos += gaps2[li] * lineThick;
+    if (pos > sunCY + sunR) break;
+    ctx.fillRect(cx - sunR, pos, sunR * 2, lineThick * 0.6);
+    pos += lineThick * 0.6;
+  }
+  ctx.restore();
+}
+
+function drawSunReflection() {
+  var cx = W / 2;
+  var hy = horizY();
+  var grad = ctx.createLinearGradient(cx, hy, cx, H);
+  grad.addColorStop(0,   'rgba(255,45,120,0.35)');
+  grad.addColorStop(0.4, 'rgba(255,45,120,0.12)');
+  grad.addColorStop(1,   'rgba(255,45,120,0)');
+  var rw = 4 + 6 * (0.5 + 0.5 * Math.sin(tick * 0.03));
+  ctx.fillStyle = grad;
+  ctx.fillRect(cx - rw / 2, hy, rw, H - hy);
+}
+
+function drawMountains() {
+  var hy = horizY();
+
+  // Back mountains
+  ctx.beginPath();
+  ctx.moveTo(0, H);
+  ctx.lineTo(0, hy * 0.88);
+  var bpts = [
+    0.03,0.82, 0.07,0.92, 0.11,0.74, 0.15,0.88, 0.20,0.66,
+    0.25,0.85, 0.29,0.72, 0.34,0.88, 0.39,0.62,
+    0.44,0.82, 0.48,0.70, 0.53,0.90, 0.57,0.65,
+    0.62,0.84, 0.66,0.72, 0.71,0.90, 0.76,0.62,
+    0.81,0.85, 0.85,0.70, 0.89,0.88, 0.93,0.65,
+    0.97,0.85, 1.0,0.75
+  ];
+  for (var i = 0; i < bpts.length; i += 2) {
+    ctx.lineTo(bpts[i] * W, bpts[i+1] * hy);
+  }
+  ctx.lineTo(W, H);
+  ctx.closePath();
+  ctx.fillStyle = '#0e001e';
+  ctx.fill();
+
+  // Back mountain edge glow
+  ctx.beginPath();
+  ctx.moveTo(0, hy * 0.88);
+  for (var j = 0; j < bpts.length; j += 2) {
+    ctx.lineTo(bpts[j] * W, bpts[j+1] * hy);
+  }
+  ctx.strokeStyle = 'rgba(180,0,255,0.8)';
+  ctx.lineWidth = 1.5;
+  ctx.shadowColor = '#b400ff';
+  ctx.shadowBlur = 10;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Front mountains
+  ctx.beginPath();
+  ctx.moveTo(0, H);
+  ctx.lineTo(0, hy * 0.96);
+  var fpts = [
+    0.04,0.86, 0.08,0.95, 0.13,0.75, 0.18,0.90, 0.23,0.68,
+    0.28,0.88, 0.33,0.75, 0.38,0.92, 0.43,0.65,
+    0.48,0.85, 0.52,0.95, 0.57,0.72, 0.62,0.90,
+    0.67,0.78, 0.72,0.92, 0.77,0.65, 0.82,0.88,
+    0.87,0.75, 0.91,0.90, 0.95,0.78, 1.0,0.88
+  ];
+  for (var k = 0; k < fpts.length; k += 2) {
+    ctx.lineTo(fpts[k] * W, fpts[k+1] * hy);
+  }
+  ctx.lineTo(W, H);
+  ctx.closePath();
+  ctx.fillStyle = '#09000f';
+  ctx.fill();
+
+  // Front mountain edge glow
+  ctx.beginPath();
+  ctx.moveTo(0, hy * 0.96);
+  for (var m = 0; m < fpts.length; m += 2) {
+    ctx.lineTo(fpts[m] * W, fpts[m+1] * hy);
+  }
+  ctx.strokeStyle = 'rgba(255,45,120,0.9)';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#ff2d78';
+  ctx.shadowBlur = 12;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+}
+
+function drawTrees() {
+  var hy = horizY();
+  var groundY = hy; // trees sit at horizon
+
+  function drawTree(x, scale, flip) {
+    ctx.save();
+    ctx.translate(x, groundY);
+    if (flip) ctx.scale(-1, 1);
+    ctx.scale(scale, scale);
+
+    var col = 'rgba(180,0,255,0.55)';
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 2.5 / scale;
+    ctx.shadowColor = '#b400ff';
+    ctx.shadowBlur = 8;
+
+    // Trunk
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0, -90);
+    ctx.stroke();
+
+    // Branches
+    var branches = [
+      [-10, -30, -55, -65, 1.0],
+      [-10, -30, -75, -80, 0.7],
+      [8,  -45, 50,  -72, 0.9],
+      [-5, -55, -40, -85, 0.8],
+      [5,  -65, 35,  -90, 0.7],
+      [-3, -72, -28, -92, 0.6],
+      [3,  -80, 20,  -95, 0.5],
+    ];
+    for (var bi = 0; bi < branches.length; bi++) {
+      var b = branches[bi];
+      ctx.globalAlpha = b[4];
+      ctx.beginPath();
+      ctx.moveTo(b[0], b[1]);
+      ctx.lineTo(b[2], b[3]);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
+    ctx.restore();
+  }
+
+  // Left cluster
+  drawTree(W * 0.05, 1.1, false);
+  drawTree(W * 0.11, 0.8, false);
+  drawTree(W * 0.15, 1.3, true);
+
+  // Right cluster
+  drawTree(W * 0.88, 1.0, true);
+  drawTree(W * 0.93, 1.2, false);
+}
+
+function drawOcean() {
+  var hy = horizY();
+
+  // Ocean base
+  var og = ctx.createLinearGradient(0, hy, 0, H);
+  og.addColorStop(0,   '#1a0035');
+  og.addColorStop(0.3, '#100020');
+  og.addColorStop(1,   '#07000d');
+  ctx.fillStyle = og;
+  ctx.fillRect(0, hy, W, H - hy);
+
+  // Horizon glow line
+  ctx.beginPath();
+  ctx.moveTo(0, hy);
+  ctx.lineTo(W, hy);
+  ctx.strokeStyle = 'rgba(255,45,120,0.9)';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = '#ff2d78';
+  ctx.shadowBlur = 20;
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Grid lines (perspective)
+  var numH = 10;
+  for (var hi = 0; hi < numH; hi++) {
+    var t = Math.pow((hi + 1) / numH, 1.6);
+    var y = hy + (H - hy) * t;
+    var alpha = 0.35 * (1 - t * 0.7);
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y);
+    ctx.strokeStyle = 'rgba(180,0,255,' + alpha + ')';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Vertical grid lines (vanishing point)
+  var numV = 14;
+  var vp = { x: W / 2, y: hy };
+  for (var vi = 0; vi < numV; vi++) {
+    var bx = (vi / (numV - 1)) * W;
+    var alpha2 = 0.2 + 0.1 * Math.abs(vi - numV / 2) / (numV / 2);
+    ctx.beginPath();
+    ctx.moveTo(vp.x, vp.y);
+    ctx.lineTo(bx, H);
+    ctx.strokeStyle = 'rgba(180,0,255,' + alpha2 + ')';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Animated waves
+  var waveColors = [
+    'rgba(255,45,120,',
+    'rgba(180,0,255,',
+    'rgba(0,245,255,',
+    'rgba(255,45,120,',
+    'rgba(180,0,255,',
+  ];
+  for (var wi = 0; wi < 5; wi++) {
+    var wy = hy + (H - hy) * (0.08 + wi * 0.18);
+    var wAlpha = 0.5 - wi * 0.07;
+    var offset = Math.sin(tick * 0.012 + wi * 1.3) * 15;
+    ctx.beginPath();
+    ctx.moveTo(-20 + offset, wy);
+    for (var wx = 0; wx <= W + 20; wx += 40) {
+      var wh = 2 + Math.sin((wx / W) * Math.PI * 6 + tick * 0.015 + wi) * 2;
+      ctx.lineTo(wx + offset, wy + wh);
+    }
+    ctx.strokeStyle = waveColors[wi % waveColors.length] + wAlpha + ')';
+    ctx.lineWidth = wi < 2 ? 2 : 1;
+    ctx.shadowColor = wi < 2 ? '#ff2d78' : '#b400ff';
+    ctx.shadowBlur = wi < 2 ? 8 : 4;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  // Shimmer on reflection column
+  var cx = W / 2;
+  var shimW = 2 + 6 * (0.5 + 0.5 * Math.sin(tick * 0.04));
+  var shimGrad = ctx.createLinearGradient(cx, hy, cx, H);
+  shimGrad.addColorStop(0,   'rgba(255,45,120,0.4)');
+  shimGrad.addColorStop(0.5, 'rgba(255,45,120,0.15)');
+  shimGrad.addColorStop(1,   'rgba(255,45,120,0)');
+  ctx.fillStyle = shimGrad;
+  ctx.fillRect(cx - shimW / 2, hy, shimW, H - hy);
+}
+
+function render() {
+  tick++;
+  spawnShooter();
+  ctx.clearRect(0, 0, W, H);
+  drawSky();
+  drawStars();
+  drawShooters();
+  drawSunReflection();
+  drawSun();
+  drawMountains();
+  drawTrees();
+  drawOcean();
+  requestAnimationFrame(render);
+}
+render();
+
+// ═══════════════════════════════════════════════
+//  GMOD CALLBACKS
+// ═══════════════════════════════════════════════
 var params = new URLSearchParams(window.location.search);
 if (params.get('map')) document.getElementById('mapDisp').textContent = params.get('map').replace('ttt_','').replace(/_/g,' ').toUpperCase();
 if (params.get('maxplayers')) document.getElementById('playerCount').textContent = '--/'+params.get('maxplayers');
 
-// ── GMOD CALLBACKS ──
 var curPct = 0;
 function setPct(p) {
   if (p > curPct) {
@@ -556,7 +840,6 @@ function setPct(p) {
   }
 }
 window.GameDetails = function(name,url,map,max) {
-  // Name wird NICHT mehr ins Topbar geschrieben – bleibt immer "HOUSE OF CRAZY PEOPLE"
   if (map)  document.getElementById('mapDisp').textContent = map.replace('ttt_','').replace(/_/g,' ').toUpperCase();
   if (max)  document.getElementById('playerCount').textContent = '--/'+max;
   tryPlay();
@@ -572,10 +855,10 @@ window.SetStatusChanged = function(s) {
 };
 window.SetFilesNeeded = function(){};
 
-// ── PING ──
+// Ping simulation
 setInterval(function(){ document.getElementById('pingDisp').textContent = 15+Math.floor(Math.random()*80); }, 2500);
 
-// ── FALLBACK PROGRESS ──
+// Fallback progress
 var fbPct=0, fbMi=0;
 var fbMsgs=['VERBINDE MIT SERVER...','SERVER INFO ABRUFEN...','MAP PRÜFEN...','RESSOURCEN LADEN...','LUA STARTEN...','FAST FERTIG...'];
 var msgEl = document.getElementById('loadMsg');
@@ -592,52 +875,242 @@ var fbIv = setInterval(function(){
 
 // ── TIPPS ──
 var tips = [
-  'Verrate niemanden... außer du bist der Traitor.',
-  'Als Detective: Leichen untersuchen gibt wertvolle Hinweise!',
-  'Innocent? Bleib in der Gruppe – Sicherheit in Zahlen.',
-  'Traitor-Waffen kaufst du im Traitor Shop mit T-Punkten.',
-  'Nicht jeder Verdächtige ist auch schuldig.',
-  'Schieß nicht auf Unschuldige – das gibt Karma-Verlust!',
-  'Der Detective kann mit DNA-Pistole Mörder identifizieren.',
-  'Als Traitor: Vermeide es, allein mit dem Detective zu sein!'
+  '[F3] drücken um den Shop zu öffnen – Waffen, Ausrüstung und mehr!',
+  'Neue Map? Tippe !RTV im Chat um einen Map-Vote zu starten.',
+  '!report [Name] [Grund] – melde Cheater oder Regelverstöße direkt im Chat.',
+  'Steam Workshop Kollektion des Servers: oben rechts im MOTD verlinkt.',
+  'Als Traitor: C4 kaufen und versteckt platzieren – tötet alle Innocents im Radius!',
+  'Detective: Leichen mit [E] untersuchen gibt DNA-Hinweise auf den Mörder.',
+  'Karma sinkt wenn du Innocents erschießt. Zu wenig Karma = automatischer Bann!',
+  'Ungemeldete Leichen gelten als verdächtig – [F3] zum Melden benutzen.',
+  'Traitor-Teleporter aus dem Shop: nach einem Kill sofort verschwinden.',
+  'DNA vom Mörder verfällt nach ~3 Minuten. Detective: sofort handeln!',
+  'Discombobulator aus dem Shop wirft Spieler weg – an Abgründen tödlich.',
+  'Traitors reden im T-Chat [T] – koordiniert euch für mehr Erfolg!',
+  '!RTV braucht genug Stimmen – überzeuge andere Spieler im Chat.',
+  'Innocents die alleine herumlaufen sind leichte Ziele für Traitors.',
+  'Schreibe !shop im Chat als Alternative zu [F3] um den Shop zu öffnen.'
 ];
 var ti = 0, tipEl = document.getElementById('tipTxt');
 function showTip() {
   tipEl.style.opacity = '0';
-  setTimeout(function(){ tipEl.innerHTML='<span>'+tips[ti]+'</span>'; tipEl.style.opacity='1'; ti=(ti+1)%tips.length; }, 350);
+  setTimeout(function(){
+    tipEl.innerHTML = '<span>' + tips[ti] + '</span>';
+    tipEl.style.opacity = '1';
+    ti = (ti + 1) % tips.length;
+  }, 350);
 }
+tips.sort(function(){ return Math.random() - 0.5; });
 showTip();
 setInterval(showTip, 7000);
+
+// ── STEAM UTILS ──
+function steamToSteam64(sid) {
+  sid = (sid || '').trim();
+  if (/^\d{17}$/.test(sid)) return sid;
+  var m = sid.match(/^STEAM_\d+:(\d):(\d+)$/i);
+  if (m) {
+    try {
+      return String(BigInt('76561197960265728') + BigInt(parseInt(m[2])) * BigInt(2) + BigInt(parseInt(m[1])));
+    } catch(e) {
+      return String(76561197960265728 + parseInt(m[2]) * 2 + parseInt(m[1]));
+    }
+  }
+  return null;
+}
+
+function fetchSteamProfile(steam64, callback) {
+  var url = 'https://steamcommunity.com/profiles/' + steam64 + '/?xml=1';
+  var proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', proxy, true);
+  xhr.timeout = 10000;
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status === 200 && xhr.responseText) {
+      try {
+        var xml = xhr.responseText;
+        var nm = xml.match(/<steamID><!\[CDATA\[([^\]]+)\]\]><\/steamID>/i);
+        var av = xml.match(/<avatarMedium><!\[CDATA\[([^\]]+)\]\]><\/avatarMedium>/i);
+        callback(nm ? nm[1] : null, av ? av[1] : null);
+      } catch(e) { callback(null, null); }
+    } else { callback(null, null); }
+  };
+  xhr.onerror = xhr.ontimeout = function(){ callback(null, null); };
+  xhr.send();
+}
+
+// ── TEAM – HARDCODIERT ──
+// localStorage funktioniert im GMod Loading Screen nicht persistent.
+// Trage Mitglieder direkt hier ein – Name + Avatar werden automatisch von Steam geladen.
+// Farben: #ff2d78=Pink  #ffe600=Gold  #00f5ff=Cyan  #00ff88=Grün  #b400ff=Lila  #ff8c00=Orange
+var TEAM_DATA = [
+  { steamid: 'STEAM_0:1:216456055', rank: 'Server-Owner', color: '#ffe600' }
+  // { steamid: 'STEAM_0:X:XXXXXXXX', rank: 'Admin',        color: '#ff2d78' },
+  // { steamid: 'STEAM_0:X:XXXXXXXX', rank: 'Moderator',    color: '#00f5ff' },
+];
+
+var teamCache = {};
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function rankBg(col) {
+  var map = {'#ff2d78':'rgba(255,45,120,0.16)','#ffe600':'rgba(255,230,0,0.14)','#00f5ff':'rgba(0,245,255,0.11)','#00ff88':'rgba(0,255,136,0.11)','#b400ff':'rgba(180,0,255,0.16)','#ff8c00':'rgba(255,140,0,0.14)','#ffffff':'rgba(255,255,255,0.09)'};
+  return map[col] || 'rgba(180,0,255,0.15)';
+}
+
+function renderTeam() {
+  var list = document.getElementById('teamList');
+  list.innerHTML = '';
+  if (!TEAM_DATA.length) {
+    list.innerHTML = '<div class="p-empty">&gt; Kein Team eingetragen<br>&gt; _</div>';
+    return;
+  }
+  TEAM_DATA.forEach(function(m) {
+    var s64    = steamToSteam64(m.steamid) || m.steamid;
+    var cached = teamCache[s64] || {};
+    var name   = cached.name   || '...';
+    var avatar = cached.avatar || null;
+    var col    = m.color || '#b400ff';
+
+    var row = document.createElement('div');
+    row.className = 'tm-row';
+
+    var avatarDiv = document.createElement('div');
+    avatarDiv.className = 'tm-avatar';
+    avatarDiv.style.borderColor = col;
+    if (avatar) {
+      var img = new Image();
+      img.src = avatar;
+      img.onerror = function(){ avatarDiv.innerHTML = '<span class="tm-avatar-init" style="color:'+col+'">'+name[0].toUpperCase()+'</span>'; };
+      avatarDiv.appendChild(img);
+    } else {
+      avatarDiv.innerHTML = '<span class="tm-avatar-init" style="color:'+col+'">?</span>';
+    }
+
+    var info = document.createElement('div');
+    info.className = 'tm-info';
+    info.innerHTML =
+      '<div class="tm-name">' + escHtml(name) + '</div>' +
+      '<span class="tm-rank" style="color:'+col+';background:'+rankBg(col)+';border:1px solid '+col+'55">' + escHtml(m.rank||'Member') + '</span>' +
+      '<div class="tm-sid">' + escHtml(m.steamid) + '</div>';
+
+    row.appendChild(avatarDiv);
+    row.appendChild(info);
+    list.appendChild(row);
+  });
+}
+
+function loadAllProfiles() {
+  TEAM_DATA.forEach(function(m) {
+    var s64 = steamToSteam64(m.steamid);
+    if (!s64) return;
+    fetchSteamProfile(s64, function(name, avatar) {
+      teamCache[s64] = { name: name || s64, avatar: avatar };
+      renderTeam();
+    });
+  });
+}
+
+function toggleTeamForm() {
+  var f = document.getElementById('teamForm');
+  f.classList.toggle('open');
+  if (f.classList.contains('open')) document.getElementById('tf-sid').focus();
+}
+
+function saveTeamMember() {
+  var rawSid = document.getElementById('tf-sid').value.trim();
+  var rank   = document.getElementById('tf-rank').value.trim() || 'Member';
+  var color  = document.getElementById('tf-color').value;
+  if (!rawSid) { alert('Steam ID eingeben!'); return; }
+  var s64 = steamToSteam64(rawSid);
+  if (!s64) { alert('Ungültige Steam ID!\nFormat: STEAM_0:1:XXXXXXXX'); return; }
+  TEAM_DATA.push({ steamid: rawSid, rank: rank, color: color });
+  teamCache[s64] = { name: '...', avatar: null };
+  renderTeam();
+  document.getElementById('tf-sid').value = '';
+  document.getElementById('tf-rank').value = '';
+  document.getElementById('teamForm').classList.remove('open');
+  fetchSteamProfile(s64, function(name, avatar) {
+    teamCache[s64] = { name: name || s64, avatar: avatar };
+    renderTeam();
+  });
+}
+
+renderTeam();
+loadAllProfiles();
+
+// ── GMOD CALLBACKS ──
+var params = new URLSearchParams(window.location.search);
+if (params.get('map')) document.getElementById('mapDisp').textContent = params.get('map').replace('ttt_','').replace(/_/g,' ').toUpperCase();
+var maxPlayers = parseInt(params.get('maxplayers')) || 32;
+document.getElementById('playerCount').textContent = '--/' + maxPlayers;
+
+var curPct = 0;
+function setPct(p) {
+  if (p > curPct) {
+    curPct = p;
+    document.getElementById('pbar').style.width = p + '%';
+    document.getElementById('pctTxt').textContent = p + '%';
+  }
+}
+window.GameDetails = function(name, url, map, max) {
+  if (map) document.getElementById('mapDisp').textContent = map.replace('ttt_','').replace(/_/g,' ').toUpperCase();
+  if (max) { maxPlayers = parseInt(max) || 32; document.getElementById('playerCount').textContent = '--/' + maxPlayers; }
+  tryPlay();
+};
+var fbOn = true;
+var sProg = {Retrieving:5,'Sending client':15,Parsing:20,Receiving:30,Checking:40,Loading:55,Requesting:60,Downloading:70,'Starting Lua':80,Settling:90,Done:100};
+window.SetStatusChanged = function(s) {
+  fbOn = false;
+  document.getElementById('loadMsg').textContent = s.toUpperCase();
+  document.getElementById('statusTxt').textContent = s.toUpperCase();
+  for (var k in sProg) { if (s.indexOf(k) !== -1) { setPct(sProg[k]); break; } }
+  tryPlay();
+};
+window.SetFilesNeeded = function(){};
+
+setInterval(function(){ document.getElementById('pingDisp').textContent = 15 + Math.floor(Math.random() * 80); }, 2500);
+
+var fbPct = 0, fbMi = 0;
+var fbMsgs = ['VERBINDE MIT SERVER...','SERVER INFO ABRUFEN...','MAP PRÜFEN...','RESSOURCEN LADEN...','LUA STARTEN...','FAST FERTIG...'];
+var msgEl = document.getElementById('loadMsg');
+var fbIv = setInterval(function(){
+  if (!fbOn) { clearInterval(fbIv); return; }
+  fbPct = Math.min(95, fbPct + 0.3 + Math.random() * 1.2);
+  if (fbPct > curPct) {
+    document.getElementById('pbar').style.width = fbPct + '%';
+    document.getElementById('pctTxt').textContent = Math.floor(fbPct) + '%';
+  }
+  var mi = Math.min(fbMsgs.length - 1, Math.floor((fbPct / 95) * (fbMsgs.length - 1)));
+  if (mi !== fbMi) { fbMi = mi; msgEl.textContent = fbMsgs[mi]; }
+}, 100);
 
 // ── VISUALISER BARS ──
 var vBarsEl = document.getElementById('visBars');
 var vBars = [];
-for (var i=0; i<28; i++) {
+for (var i = 0; i < 28; i++) {
   var b = document.createElement('div');
   b.className = 'vbar';
   b.style.height = '8%';
   vBarsEl.appendChild(b);
   vBars.push(b);
 }
-
 function animVis(playing) {
-  for (var i=0; i<vBars.length; i++) {
-    var base = i < 8 ? 0.6 : i < 16 ? 0.45 : i < 22 ? 0.3 : 0.2;
+  for (var vi = 0; vi < vBars.length; vi++) {
+    var base = vi < 8 ? 0.6 : vi < 16 ? 0.45 : vi < 22 ? 0.3 : 0.2;
     var h = playing
       ? Math.max(5, (base * 0.4 + Math.random() * base) * 100)
-      : (15 + Math.sin(Date.now()/800 + i*0.5) * 10);
-    vBars[i].style.height = h + '%';
+      : (15 + Math.sin(Date.now() / 800 + vi * 0.5) * 10);
+    vBars[vi].style.height = h + '%';
   }
 }
 setInterval(function(){ animVis(isPlaying); }, 85);
 
 // ── MUSIK ──
-// HINWEIS: AudioContext/GainNode funktioniert NICHT in GMod's CEF-Browser.
-// Lautstärke wird pro Track direkt über aud.volume gesetzt (0.0 - 1.0).
-// Werte anpassen falls ein Song zu laut/leise ist.
 var aud = document.getElementById('aud');
 var playlist = [], curTrk = 0, isPlaying = false;
-
 playlist = [
   { name: "Cheri Cheri Lady",           artist: "Modern Talking",                file: "music/01_cheri.mp3",      vol: 0.07 },
   { name: "On My Own",                  artist: "Darci",                         file: "music/02_onmyown.mp3",    vol: 0.07 },
@@ -647,7 +1120,6 @@ playlist = [
   { name: "Animals (Slowed)",           artist: "Maroon 5",                      file: "music/06_animals.mp3",    vol: 0.07 },
   { name: "Agora Hills",                artist: "Doja Cat",                      file: "music/07_agorahills.mp3", vol: 0.07 }
 ];
-
 loadTrk(Math.floor(Math.random() * playlist.length));
 setTimeout(tryPlay, 2000);
 setTimeout(tryPlay, 4000);
@@ -656,52 +1128,42 @@ function loadTrk(idx) {
   var t = playlist[idx];
   if (!t) return;
   curTrk = idx;
-  document.getElementById('trackName').textContent = t.name||'Unbekannt';
-  document.getElementById('trackArtist').textContent = t.artist||'--';
-  // Lautstärke direkt setzen – funktioniert zuverlässig in GMod CEF
+  document.getElementById('trackName').textContent = t.name || 'Unbekannt';
+  document.getElementById('trackArtist').textContent = t.artist || '--';
   aud.volume = (t.vol !== undefined) ? t.vol : 0.20;
   if (t.file) {
     aud.src = t.file;
     aud.load();
-    aud.onerror = function() {
-      document.getElementById('trackArtist').textContent = 'FEHLER: ' + t.file;
-    };
+    aud.onerror = function() { document.getElementById('trackArtist').textContent = 'FEHLER: ' + t.file; };
   }
 }
-
 function tryPlay() {
   if (isPlaying) return;
   var vol = playlist[curTrk] ? (playlist[curTrk].vol || 0.20) : 0.20;
   aud.volume = vol;
   aud.play().then(function(){
-    isPlaying = true;
-    aud.volume = vol;
+    isPlaying = true; aud.volume = vol;
   }).catch(function(){
     setTimeout(function(){ aud.play().then(function(){ isPlaying = true; }).catch(function(){}); }, 1000);
   });
 }
-
-// Lautstärke kontinuierlich durchsetzen (falls GMod sie zurücksetzt)
 aud.addEventListener('volumechange', function(){
   var target = playlist[curTrk] ? (playlist[curTrk].vol || 0.20) : 0.20;
   if (aud.volume > target + 0.01) aud.volume = target;
 });
-
 aud.addEventListener('ended', function(){
-  var next = (curTrk+1) % playlist.length;
+  var next = (curTrk + 1) % playlist.length;
   loadTrk(next);
   setTimeout(function(){ aud.play().catch(function(){}); }, 100);
 });
-
 setInterval(function(){
   if (!aud.duration) return;
-  var pct = (aud.currentTime/aud.duration)*100;
-  document.getElementById('musFill').style.width = pct+'%';
+  var pct = (aud.currentTime / aud.duration) * 100;
+  document.getElementById('musFill').style.width = pct + '%';
   document.getElementById('tNow').textContent = fmt(aud.currentTime);
   document.getElementById('tTot').textContent = fmt(aud.duration);
 }, 500);
-
-function fmt(s) { var m=Math.floor(s/60); return m+':'+('0'+Math.floor(s%60)).slice(-2); }
+function fmt(s) { var m = Math.floor(s / 60); return m + ':' + ('0' + Math.floor(s % 60)).slice(-2); }
 </script>
 </body>
 </html>
