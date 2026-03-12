@@ -418,13 +418,11 @@ body {
         <div class="tf-row">
           <input class="tf-inp" id="tf-rank" placeholder="z.B. Server-Owner" maxlength="20">
           <select class="tf-sel" id="tf-color">
-            <option value="#ff2d78">Pink</option>
-            <option value="#ffe600">Gold</option>
-            <option value="#00f5ff">Cyan</option>
-            <option value="#00ff88">Grün</option>
-            <option value="#b400ff">Lila</option>
-            <option value="#ff8c00">Orange</option>
-            <option value="#ffffff">Weiß</option>
+            <option value="#9400ff">Server-Owner (Lila)</option>
+            <option value="#8b0000">Head-Mod (Dunkelrot)</option>
+            <option value="#0077ff">Admin (Blau)</option>
+            <option value="#cc1100">Moderator (Rot)</option>
+            <option value="#ffe600">Trainee-Mod (Gelb)</option>
           </select>
         </div>
         <div class="tf-btns">
@@ -921,34 +919,46 @@ function steamToSteam64(sid) {
 }
 
 function fetchSteamProfile(steam64, callback) {
-  var url = 'https://steamcommunity.com/profiles/' + steam64 + '/?xml=1';
-  var proxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', proxy, true);
-  xhr.timeout = 10000;
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState !== 4) return;
-    if (xhr.status === 200 && xhr.responseText) {
-      try {
-        var xml = xhr.responseText;
-        var nm = xml.match(/<steamID><!\[CDATA\[([^\]]+)\]\]><\/steamID>/i);
-        var av = xml.match(/<avatarMedium><!\[CDATA\[([^\]]+)\]\]><\/avatarMedium>/i);
-        callback(nm ? nm[1] : null, av ? av[1] : null);
-      } catch(e) { callback(null, null); }
-    } else { callback(null, null); }
-  };
-  xhr.onerror = xhr.ontimeout = function(){ callback(null, null); };
-  xhr.send();
+  // Mehrere CORS-Proxies als Fallback
+  var proxies = [
+    'https://corsproxy.io/?' + encodeURIComponent('https://steamcommunity.com/profiles/' + steam64 + '/?xml=1'),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://steamcommunity.com/profiles/' + steam64 + '/?xml=1'),
+    'https://cors-anywhere.herokuapp.com/https://steamcommunity.com/profiles/' + steam64 + '/?xml=1'
+  ];
+  var tried = 0;
+
+  function tryNext() {
+    if (tried >= proxies.length) { callback(null, null); return; }
+    var url = proxies[tried++];
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.timeout = 8000;
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4) return;
+      if (xhr.status === 200 && xhr.responseText && xhr.responseText.indexOf('<steamID') !== -1) {
+        try {
+          var xml = xhr.responseText;
+          var nm = xml.match(/<steamID><!\[CDATA\[([^\]]+)\]\]><\/steamID>/i);
+          var av = xml.match(/<avatarMedium><!\[CDATA\[([^\]]+)\]\]><\/avatarMedium>/i);
+          if (nm) { callback(nm[1], av ? av[1] : null); }
+          else { tryNext(); }
+        } catch(e) { tryNext(); }
+      } else { tryNext(); }
+    };
+    xhr.onerror = xhr.ontimeout = function(){ tryNext(); };
+    xhr.send();
+  }
+  tryNext();
 }
 
 // ── TEAM – HARDCODIERT ──
-// localStorage funktioniert im GMod Loading Screen nicht persistent.
-// Trage Mitglieder direkt hier ein – Name + Avatar werden automatisch von Steam geladen.
-// Farben: #ff2d78=Pink  #ffe600=Gold  #00f5ff=Cyan  #00ff88=Grün  #b400ff=Lila  #ff8c00=Orange
+// Rang-Farben: Server-Owner=#9400ff  Head-Mod=#8b0000  Admin=#0077ff  Moderator=#cc1100  Trainee-Mod=#ffe600
 var TEAM_DATA = [
-  { steamid: 'STEAM_0:1:216456055', rank: 'Server-Owner', color: '#ffe600' }
-  // { steamid: 'STEAM_0:X:XXXXXXXX', rank: 'Admin',        color: '#ff2d78' },
-  // { steamid: 'STEAM_0:X:XXXXXXXX', rank: 'Moderator',    color: '#00f5ff' },
+  { steamid: 'STEAM_0:1:216456055', rank: 'Server-Owner', color: '#9400ff' }
+  // { steamid: 'STEAM_0:X:XXXXXXXX', rank: 'Head-Mod',    color: '#8b0000' },
+  // { steamid: 'STEAM_0:X:XXXXXXXX', rank: 'Admin',       color: '#0077ff' },
+  // { steamid: 'STEAM_0:X:XXXXXXXX', rank: 'Moderator',   color: '#cc1100' },
+  // { steamid: 'STEAM_0:X:XXXXXXXX', rank: 'Trainee-Mod', color: '#ffe600' },
 ];
 
 var teamCache = {};
@@ -957,7 +967,13 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function rankBg(col) {
-  var map = {'#ff2d78':'rgba(255,45,120,0.16)','#ffe600':'rgba(255,230,0,0.14)','#00f5ff':'rgba(0,245,255,0.11)','#00ff88':'rgba(0,255,136,0.11)','#b400ff':'rgba(180,0,255,0.16)','#ff8c00':'rgba(255,140,0,0.14)','#ffffff':'rgba(255,255,255,0.09)'};
+  var map = {
+    '#9400ff': 'rgba(148,0,255,0.18)',
+    '#8b0000': 'rgba(139,0,0,0.25)',
+    '#0077ff': 'rgba(0,119,255,0.18)',
+    '#cc1100': 'rgba(204,17,0,0.22)',
+    '#ffe600': 'rgba(255,230,0,0.14)'
+  };
   return map[col] || 'rgba(180,0,255,0.15)';
 }
 
