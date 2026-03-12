@@ -263,8 +263,9 @@ body {
 }
 .tm-name.loading { color: var(--dim); font-size: 0.8rem; }
 .tm-rank {
-  font-size: 0.2rem; letter-spacing: 0.14em; text-transform: uppercase;
-  padding: 1px 5px 1px 4px; border-radius: 1px; margin-top: 3px; display: inline-block;
+  font-size: 0.26rem; letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 2px; margin-top: 4px; display: inline-block;
+  text-shadow: 0 0 8px currentColor;
 }
 .tm-sid { font-family: 'VT323', monospace; font-size: 0.6rem; color: var(--dim); margin-top: 1px; }
 
@@ -993,8 +994,7 @@ function renderTeam() {
     info.className = 'tm-info';
     info.innerHTML =
       '<div class="tm-name">' + escHtml(name) + '</div>' +
-      '<span class="tm-rank" style="color:'+col+';background:'+rankBg(col)+';border:1px solid '+col+'55">' + escHtml(m.rank||'Member') + '</span>' +
-      '<div class="tm-sid">' + escHtml(m.steamid) + '</div>';
+      '<span class="tm-rank" style="color:'+col+';background:'+rankBg(col)+';border:1px solid '+col+'88;font-weight:bold;letter-spacing:0.18em;padding:2px 7px;">' + escHtml(m.rank||'Member') + '</span>';
 
     row.appendChild(avatarDiv);
     row.appendChild(info);
