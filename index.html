@@ -294,7 +294,9 @@ function fetchSteamProfile(steam64,callback){
     var av=text.match(/property=["']og:image["'][^>]*content=["']([^"'<>]+)["']/i)
            ||text.match(/content=["']([^"'<>]+)["'][^>]*property=["']og:image["']/i);
     if(!nm||!nm[1]||nm[1]==='Steam'||nm[1].length<1)return null;
-    return{name:nm[1],avatar:av?av[1].replace('_full','_medium'):null};
+    var cleanName=nm[1].replace(/^Steam Community\s*::\s*/i,'').trim();
+    if(!cleanName||cleanName==='Steam')return null;
+    return{name:cleanName,avatar:av?av[1].replace('_full','_medium'):null};
   }
   function fire(idx){
     var a=attempts[idx];
@@ -325,7 +327,6 @@ var TEAM_DATA=[
   {steamid:'76561198414313332',rank:'Admin',       color:'#0077ff'},
   {steamid:'76561199042527676',rank:'Admin',       color:'#0077ff'},
   {steamid:'76561197999454630',rank:'Head-Mod',    color:'#8b0000'},
-  {steamid:'76561198768808011',rank:'Werbeagentur',color:'#ffe600'}
   // {steamid:'STEAM_0:X:XXXXXXXX',rank:'Moderator',  color:'#cc1100'},
   // {steamid:'STEAM_0:X:XXXXXXXX',rank:'Trainee-Mod',color:'#ffe600'},
 ];
