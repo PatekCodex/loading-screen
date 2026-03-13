@@ -27,7 +27,6 @@ body {
   flex-direction: column;
 }
 
-/* Canvas fills the whole screen behind everything */
 #bgCanvas {
   position: fixed;
   inset: 0;
@@ -36,7 +35,6 @@ body {
   height: 100%;
 }
 
-/* HTML sun label – reliable font rendering */
 #sunLabel {
   position: fixed;
   left: 50%;
@@ -249,11 +247,6 @@ body {
 .tm-avatar-init {
   font-family: 'VT323', monospace; font-size: 1.3rem; line-height: 1;
 }
-.tm-online-dot {
-  position: absolute; bottom: -2px; right: -2px;
-  width: 8px; height: 8px; border-radius: 50%;
-  border: 1px solid #07000d;
-}
 
 .tm-info { flex: 1; min-width: 0; }
 .tm-name {
@@ -261,23 +254,12 @@ body {
   color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   line-height: 1.2;
 }
-.tm-name.loading { color: var(--dim); font-size: 0.8rem; }
 .tm-rank {
   font-family: 'VT323', monospace; font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase;
   padding: 1px 8px; border-radius: 2px; margin-top: 3px; display: inline-block;
   text-shadow: 0 0 10px currentColor; line-height: 1.4;
 }
-.tm-sid { font-family: 'VT323', monospace; font-size: 0.6rem; color: var(--dim); margin-top: 1px; }
 
-.tm-del {
-  font-family: 'VT323', monospace; font-size: 1rem;
-  color: transparent; cursor: pointer; padding: 2px 4px; flex-shrink: 0;
-  transition: color 0.15s;
-}
-.tm-row:hover .tm-del { color: var(--dim); }
-.tm-del:hover { color: var(--pink) !important; text-shadow: 0 0 6px var(--pink); }
-
-/* Add form */
 .team-add-btn {
   margin: 5px 10px 4px;
   padding: 6px; font-family: 'Press Start 2P', monospace;
@@ -325,15 +307,12 @@ body {
 }
 .tf-cancel:hover { border-color: var(--purple); color: var(--text); }
 .p-empty { padding: 12px 14px; font-family: 'VT323', monospace; font-size: 0.8rem; color: var(--dim); line-height: 2; }
-
 </style>
 </head>
 <body>
 
-<!-- CANVAS BACKGROUND -->
 <canvas id="bgCanvas"></canvas>
 
-<!-- SUN LABEL as HTML so fonts render reliably -->
 <div id="sunLabel">
   <span class="top">HOUSE OF</span>
   <span class="bot">CRAZY PEOPLE</span>
@@ -442,437 +421,198 @@ body {
 // ═══════════════════════════════════════════════
 var canvas = document.getElementById('bgCanvas');
 var ctx = canvas.getContext('2d');
-var W, H;
-var tick = 0;
+var W, H, tick = 0;
+var stars = [], shooters = [];
 
-// Stars data
-var stars = [];
 function initStars() {
   stars = [];
   for (var i = 0; i < 120; i++) {
-    stars.push({
-      x: Math.random() * W,
-      y: Math.random() * H * 0.65,
-      r: Math.random() * 1.5 + 0.3,
-      phase: Math.random() * Math.PI * 2,
-      speed: 0.5 + Math.random() * 1.5
-    });
+    stars.push({ x: Math.random()*W, y: Math.random()*H*0.65, r: Math.random()*1.5+0.3, phase: Math.random()*Math.PI*2, speed: 0.5+Math.random()*1.5 });
   }
 }
-
-// Shooting stars
-var shooters = [];
 function spawnShooter() {
   if (Math.random() < 0.008) {
-    shooters.push({
-      x: Math.random() * W * 0.8,
-      y: Math.random() * H * 0.3,
-      len: 80 + Math.random() * 120,
-      alpha: 1,
-      speed: 6 + Math.random() * 6
-    });
+    shooters.push({ x: Math.random()*W*0.8, y: Math.random()*H*0.3, len: 80+Math.random()*120, alpha: 1, speed: 6+Math.random()*6 });
   }
 }
-
-function resize() {
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-  initStars();
-}
+function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; initStars(); }
 window.addEventListener('resize', resize);
 resize();
 
-// Horizon Y (where ocean meets mountains)
 function horizY() { return H * 0.68; }
 
 function drawSky() {
   var hy = horizY();
-  var grad = ctx.createLinearGradient(0, 0, 0, hy);
-  grad.addColorStop(0,    '#04000a');
-  grad.addColorStop(0.3,  '#0c0018');
-  grad.addColorStop(0.6,  '#160028');
-  grad.addColorStop(0.85, '#200038');
-  grad.addColorStop(1,    '#140025');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, hy);
+  var grad = ctx.createLinearGradient(0,0,0,hy);
+  grad.addColorStop(0,'#04000a'); grad.addColorStop(0.3,'#0c0018');
+  grad.addColorStop(0.6,'#160028'); grad.addColorStop(0.85,'#200038'); grad.addColorStop(1,'#140025');
+  ctx.fillStyle = grad; ctx.fillRect(0,0,W,hy);
 }
-
 function drawStars() {
   for (var i = 0; i < stars.length; i++) {
     var s = stars[i];
-    var alpha = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(s.phase + tick * s.speed * 0.01));
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,' + alpha + ')';
-    ctx.fill();
+    var alpha = 0.3 + 0.7*(0.5+0.5*Math.sin(s.phase+tick*s.speed*0.01));
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,'+alpha+')'; ctx.fill();
   }
 }
-
 function drawShooters() {
-  for (var i = shooters.length - 1; i >= 0; i--) {
+  for (var i = shooters.length-1; i >= 0; i--) {
     var sh = shooters[i];
-    var grd = ctx.createLinearGradient(sh.x, sh.y, sh.x + sh.len, sh.y + sh.len * 0.4);
-    grd.addColorStop(0, 'rgba(255,255,255,0)');
-    grd.addColorStop(1, 'rgba(255,255,255,' + sh.alpha + ')');
-    ctx.beginPath();
-    ctx.moveTo(sh.x, sh.y);
-    ctx.lineTo(sh.x + sh.len, sh.y + sh.len * 0.4);
-    ctx.strokeStyle = grd;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-    sh.x += sh.speed * 2;
-    sh.y += sh.speed * 0.8;
-    sh.alpha -= 0.025;
-    if (sh.alpha <= 0) shooters.splice(i, 1);
+    var grd = ctx.createLinearGradient(sh.x,sh.y,sh.x+sh.len,sh.y+sh.len*0.4);
+    grd.addColorStop(0,'rgba(255,255,255,0)'); grd.addColorStop(1,'rgba(255,255,255,'+sh.alpha+')');
+    ctx.beginPath(); ctx.moveTo(sh.x,sh.y); ctx.lineTo(sh.x+sh.len,sh.y+sh.len*0.4);
+    ctx.strokeStyle=grd; ctx.lineWidth=1.5; ctx.stroke();
+    sh.x+=sh.speed*2; sh.y+=sh.speed*0.8; sh.alpha-=0.025;
+    if (sh.alpha<=0) shooters.splice(i,1);
   }
 }
-
 function drawSun() {
-  var cx = W / 2;
-  var hy = horizY();
-  // Large sun radius
-  var sunR = H * 0.16;
-  // Sun CENTER fixed at 42% from top – clearly above all mountains (which peak at ~0.55*hy = ~37% from top)
-  var sunCY = H * 0.42;
-
-  // Position the HTML label just above the sun
+  var cx = W/2, hy = horizY(), sunR = H*0.16, sunCY = H*0.42;
   var labelEl = document.getElementById('sunLabel');
-  if (labelEl) {
-    labelEl.style.top = (sunCY - sunR - 16) + 'px';
-  }
-
-  // Outer glow pulse
-  var glowPulse = 0.8 + 0.2 * Math.sin(tick * 0.02);
-  var glow = ctx.createRadialGradient(cx, sunCY, sunR * 0.5, cx, sunCY, sunR * 3.5);
-  glow.addColorStop(0,   'rgba(255,45,120,' + (0.5 * glowPulse) + ')');
-  glow.addColorStop(0.3, 'rgba(180,0,255,'  + (0.3 * glowPulse) + ')');
-  glow.addColorStop(0.7, 'rgba(180,0,255,0.05)');
-  glow.addColorStop(1,   'rgba(180,0,255,0)');
-  ctx.fillStyle = glow;
-  ctx.beginPath();
-  ctx.arc(cx, sunCY, sunR * 3.5, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Sun body – clip to circle
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, sunCY, sunR, 0, Math.PI * 2);
-  ctx.clip();
-
-  // Color gradient
-  var sunGrad = ctx.createLinearGradient(cx, sunCY - sunR, cx, sunCY + sunR);
-  sunGrad.addColorStop(0,    '#fff9c0');
-  sunGrad.addColorStop(0.12, '#ffe600');
-  sunGrad.addColorStop(0.32, '#ff8c00');
-  sunGrad.addColorStop(0.58, '#ff2d78');
-  sunGrad.addColorStop(0.80, '#cc00dd');
-  sunGrad.addColorStop(1,    '#7700bb');
-  ctx.fillStyle = sunGrad;
-  ctx.fillRect(cx - sunR, sunCY - sunR, sunR * 2, sunR * 2);
-
-  // Horizontal stripe lines in lower half
-  ctx.fillStyle = '#07000d';
-  var pos = sunCY + sunR * 0.05;
-  var lineThick = sunR / 18;
-  var gaps2 = [1.8, 2.5, 1.2, 2.8, 1.0, 2.2, 1.4, 2.0, 0.8, 1.8, 1.2, 1.6, 0.8, 1.5, 0.9, 1.4, 0.7, 1.3, 0.7, 1.2, 0.6, 1.1];
-  for (var li = 0; li < gaps2.length; li++) {
-    pos += gaps2[li] * lineThick;
-    if (pos > sunCY + sunR) break;
-    ctx.fillRect(cx - sunR, pos, sunR * 2, lineThick * 0.6);
-    pos += lineThick * 0.6;
+  if (labelEl) labelEl.style.top = (sunCY - sunR - 16) + 'px';
+  var glowPulse = 0.8+0.2*Math.sin(tick*0.02);
+  var glow = ctx.createRadialGradient(cx,sunCY,sunR*0.5,cx,sunCY,sunR*3.5);
+  glow.addColorStop(0,'rgba(255,45,120,'+(0.5*glowPulse)+')');
+  glow.addColorStop(0.3,'rgba(180,0,255,'+(0.3*glowPulse)+')');
+  glow.addColorStop(0.7,'rgba(180,0,255,0.05)'); glow.addColorStop(1,'rgba(180,0,255,0)');
+  ctx.fillStyle=glow; ctx.beginPath(); ctx.arc(cx,sunCY,sunR*3.5,0,Math.PI*2); ctx.fill();
+  ctx.save(); ctx.beginPath(); ctx.arc(cx,sunCY,sunR,0,Math.PI*2); ctx.clip();
+  var sunGrad = ctx.createLinearGradient(cx,sunCY-sunR,cx,sunCY+sunR);
+  sunGrad.addColorStop(0,'#fff9c0'); sunGrad.addColorStop(0.12,'#ffe600');
+  sunGrad.addColorStop(0.32,'#ff8c00'); sunGrad.addColorStop(0.58,'#ff2d78');
+  sunGrad.addColorStop(0.80,'#cc00dd'); sunGrad.addColorStop(1,'#7700bb');
+  ctx.fillStyle=sunGrad; ctx.fillRect(cx-sunR,sunCY-sunR,sunR*2,sunR*2);
+  ctx.fillStyle='#07000d';
+  var pos=sunCY+sunR*0.05, lineThick=sunR/18;
+  var gaps=[1.8,2.5,1.2,2.8,1.0,2.2,1.4,2.0,0.8,1.8,1.2,1.6,0.8,1.5,0.9,1.4,0.7,1.3,0.7,1.2,0.6,1.1];
+  for (var li=0;li<gaps.length;li++) {
+    pos+=gaps[li]*lineThick; if(pos>sunCY+sunR)break;
+    ctx.fillRect(cx-sunR,pos,sunR*2,lineThick*0.6); pos+=lineThick*0.6;
   }
   ctx.restore();
 }
-
 function drawSunReflection() {
-  var cx = W / 2;
-  var hy = horizY();
-  var grad = ctx.createLinearGradient(cx, hy, cx, H);
-  grad.addColorStop(0,   'rgba(255,45,120,0.35)');
-  grad.addColorStop(0.4, 'rgba(255,45,120,0.12)');
-  grad.addColorStop(1,   'rgba(255,45,120,0)');
-  var rw = 4 + 6 * (0.5 + 0.5 * Math.sin(tick * 0.03));
-  ctx.fillStyle = grad;
-  ctx.fillRect(cx - rw / 2, hy, rw, H - hy);
+  var cx=W/2,hy=horizY();
+  var grad=ctx.createLinearGradient(cx,hy,cx,H);
+  grad.addColorStop(0,'rgba(255,45,120,0.35)'); grad.addColorStop(0.4,'rgba(255,45,120,0.12)'); grad.addColorStop(1,'rgba(255,45,120,0)');
+  var rw=4+6*(0.5+0.5*Math.sin(tick*0.03));
+  ctx.fillStyle=grad; ctx.fillRect(cx-rw/2,hy,rw,H-hy);
 }
-
 function drawMountains() {
-  var hy = horizY();
-
-  // Back mountains
-  ctx.beginPath();
-  ctx.moveTo(0, H);
-  ctx.lineTo(0, hy * 0.88);
-  var bpts = [
-    0.03,0.82, 0.07,0.92, 0.11,0.74, 0.15,0.88, 0.20,0.66,
-    0.25,0.85, 0.29,0.72, 0.34,0.88, 0.39,0.62,
-    0.44,0.82, 0.48,0.70, 0.53,0.90, 0.57,0.65,
-    0.62,0.84, 0.66,0.72, 0.71,0.90, 0.76,0.62,
-    0.81,0.85, 0.85,0.70, 0.89,0.88, 0.93,0.65,
-    0.97,0.85, 1.0,0.75
-  ];
-  for (var i = 0; i < bpts.length; i += 2) {
-    ctx.lineTo(bpts[i] * W, bpts[i+1] * hy);
-  }
-  ctx.lineTo(W, H);
-  ctx.closePath();
-  ctx.fillStyle = '#0e001e';
-  ctx.fill();
-
-  // Back mountain edge glow
-  ctx.beginPath();
-  ctx.moveTo(0, hy * 0.88);
-  for (var j = 0; j < bpts.length; j += 2) {
-    ctx.lineTo(bpts[j] * W, bpts[j+1] * hy);
-  }
-  ctx.strokeStyle = 'rgba(180,0,255,0.8)';
-  ctx.lineWidth = 1.5;
-  ctx.shadowColor = '#b400ff';
-  ctx.shadowBlur = 10;
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  // Front mountains
-  ctx.beginPath();
-  ctx.moveTo(0, H);
-  ctx.lineTo(0, hy * 0.96);
-  var fpts = [
-    0.04,0.86, 0.08,0.95, 0.13,0.75, 0.18,0.90, 0.23,0.68,
-    0.28,0.88, 0.33,0.75, 0.38,0.92, 0.43,0.65,
-    0.48,0.85, 0.52,0.95, 0.57,0.72, 0.62,0.90,
-    0.67,0.78, 0.72,0.92, 0.77,0.65, 0.82,0.88,
-    0.87,0.75, 0.91,0.90, 0.95,0.78, 1.0,0.88
-  ];
-  for (var k = 0; k < fpts.length; k += 2) {
-    ctx.lineTo(fpts[k] * W, fpts[k+1] * hy);
-  }
-  ctx.lineTo(W, H);
-  ctx.closePath();
-  ctx.fillStyle = '#09000f';
-  ctx.fill();
-
-  // Front mountain edge glow
-  ctx.beginPath();
-  ctx.moveTo(0, hy * 0.96);
-  for (var m = 0; m < fpts.length; m += 2) {
-    ctx.lineTo(fpts[m] * W, fpts[m+1] * hy);
-  }
-  ctx.strokeStyle = 'rgba(255,45,120,0.9)';
-  ctx.lineWidth = 2;
-  ctx.shadowColor = '#ff2d78';
-  ctx.shadowBlur = 12;
-  ctx.stroke();
-  ctx.shadowBlur = 0;
+  var hy=horizY();
+  ctx.beginPath(); ctx.moveTo(0,H); ctx.lineTo(0,hy*0.88);
+  var bpts=[0.03,0.82,0.07,0.92,0.11,0.74,0.15,0.88,0.20,0.66,0.25,0.85,0.29,0.72,0.34,0.88,0.39,0.62,0.44,0.82,0.48,0.70,0.53,0.90,0.57,0.65,0.62,0.84,0.66,0.72,0.71,0.90,0.76,0.62,0.81,0.85,0.85,0.70,0.89,0.88,0.93,0.65,0.97,0.85,1.0,0.75];
+  for(var i=0;i<bpts.length;i+=2) ctx.lineTo(bpts[i]*W,bpts[i+1]*hy);
+  ctx.lineTo(W,H); ctx.closePath(); ctx.fillStyle='#0e001e'; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0,hy*0.88);
+  for(var j=0;j<bpts.length;j+=2) ctx.lineTo(bpts[j]*W,bpts[j+1]*hy);
+  ctx.strokeStyle='rgba(180,0,255,0.8)'; ctx.lineWidth=1.5; ctx.shadowColor='#b400ff'; ctx.shadowBlur=10; ctx.stroke(); ctx.shadowBlur=0;
+  ctx.beginPath(); ctx.moveTo(0,H); ctx.lineTo(0,hy*0.96);
+  var fpts=[0.04,0.86,0.08,0.95,0.13,0.75,0.18,0.90,0.23,0.68,0.28,0.88,0.33,0.75,0.38,0.92,0.43,0.65,0.48,0.85,0.52,0.95,0.57,0.72,0.62,0.90,0.67,0.78,0.72,0.92,0.77,0.65,0.82,0.88,0.87,0.75,0.91,0.90,0.95,0.78,1.0,0.88];
+  for(var k=0;k<fpts.length;k+=2) ctx.lineTo(fpts[k]*W,fpts[k+1]*hy);
+  ctx.lineTo(W,H); ctx.closePath(); ctx.fillStyle='#09000f'; ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0,hy*0.96);
+  for(var m=0;m<fpts.length;m+=2) ctx.lineTo(fpts[m]*W,fpts[m+1]*hy);
+  ctx.strokeStyle='rgba(255,45,120,0.9)'; ctx.lineWidth=2; ctx.shadowColor='#ff2d78'; ctx.shadowBlur=12; ctx.stroke(); ctx.shadowBlur=0;
 }
-
 function drawTrees() {
-  var hy = horizY();
-  var groundY = hy; // trees sit at horizon
-
-  function drawTree(x, scale, flip) {
-    ctx.save();
-    ctx.translate(x, groundY);
-    if (flip) ctx.scale(-1, 1);
-    ctx.scale(scale, scale);
-
-    var col = 'rgba(180,0,255,0.55)';
-    ctx.strokeStyle = col;
-    ctx.lineWidth = 2.5 / scale;
-    ctx.shadowColor = '#b400ff';
-    ctx.shadowBlur = 8;
-
-    // Trunk
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(0, -90);
-    ctx.stroke();
-
-    // Branches
-    var branches = [
-      [-10, -30, -55, -65, 1.0],
-      [-10, -30, -75, -80, 0.7],
-      [8,  -45, 50,  -72, 0.9],
-      [-5, -55, -40, -85, 0.8],
-      [5,  -65, 35,  -90, 0.7],
-      [-3, -72, -28, -92, 0.6],
-      [3,  -80, 20,  -95, 0.5],
-    ];
-    for (var bi = 0; bi < branches.length; bi++) {
-      var b = branches[bi];
-      ctx.globalAlpha = b[4];
-      ctx.beginPath();
-      ctx.moveTo(b[0], b[1]);
-      ctx.lineTo(b[2], b[3]);
-      ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-    ctx.shadowBlur = 0;
-    ctx.restore();
+  var hy=horizY();
+  function drawTree(x,scale,flip) {
+    ctx.save(); ctx.translate(x,hy); if(flip)ctx.scale(-1,1); ctx.scale(scale,scale);
+    var col='rgba(180,0,255,0.55)'; ctx.strokeStyle=col; ctx.lineWidth=2.5/scale; ctx.shadowColor='#b400ff'; ctx.shadowBlur=8;
+    ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(0,-90); ctx.stroke();
+    var branches=[[-10,-30,-55,-65,1.0],[-10,-30,-75,-80,0.7],[8,-45,50,-72,0.9],[-5,-55,-40,-85,0.8],[5,-65,35,-90,0.7],[-3,-72,-28,-92,0.6],[3,-80,20,-95,0.5]];
+    for(var bi=0;bi<branches.length;bi++){var b=branches[bi];ctx.globalAlpha=b[4];ctx.beginPath();ctx.moveTo(b[0],b[1]);ctx.lineTo(b[2],b[3]);ctx.stroke();}
+    ctx.globalAlpha=1; ctx.shadowBlur=0; ctx.restore();
   }
-
-  // Left cluster
-  drawTree(W * 0.05, 1.1, false);
-  drawTree(W * 0.11, 0.8, false);
-  drawTree(W * 0.15, 1.3, true);
-
-  // Right cluster
-  drawTree(W * 0.88, 1.0, true);
-  drawTree(W * 0.93, 1.2, false);
+  drawTree(W*0.05,1.1,false); drawTree(W*0.11,0.8,false); drawTree(W*0.15,1.3,true);
+  drawTree(W*0.88,1.0,true); drawTree(W*0.93,1.2,false);
 }
-
 function drawOcean() {
-  var hy = horizY();
-
-  // Ocean base
-  var og = ctx.createLinearGradient(0, hy, 0, H);
-  og.addColorStop(0,   '#1a0035');
-  og.addColorStop(0.3, '#100020');
-  og.addColorStop(1,   '#07000d');
-  ctx.fillStyle = og;
-  ctx.fillRect(0, hy, W, H - hy);
-
-  // Horizon glow line
-  ctx.beginPath();
-  ctx.moveTo(0, hy);
-  ctx.lineTo(W, hy);
-  ctx.strokeStyle = 'rgba(255,45,120,0.9)';
-  ctx.lineWidth = 2;
-  ctx.shadowColor = '#ff2d78';
-  ctx.shadowBlur = 20;
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  // Grid lines (perspective)
-  var numH = 10;
-  for (var hi = 0; hi < numH; hi++) {
-    var t = Math.pow((hi + 1) / numH, 1.6);
-    var y = hy + (H - hy) * t;
-    var alpha = 0.35 * (1 - t * 0.7);
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(W, y);
-    ctx.strokeStyle = 'rgba(180,0,255,' + alpha + ')';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-
-  // Vertical grid lines (vanishing point)
-  var numV = 14;
-  var vp = { x: W / 2, y: hy };
-  for (var vi = 0; vi < numV; vi++) {
-    var bx = (vi / (numV - 1)) * W;
-    var alpha2 = 0.2 + 0.1 * Math.abs(vi - numV / 2) / (numV / 2);
-    ctx.beginPath();
-    ctx.moveTo(vp.x, vp.y);
-    ctx.lineTo(bx, H);
-    ctx.strokeStyle = 'rgba(180,0,255,' + alpha2 + ')';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-
-  // Animated waves
-  var waveColors = [
-    'rgba(255,45,120,',
-    'rgba(180,0,255,',
-    'rgba(0,245,255,',
-    'rgba(255,45,120,',
-    'rgba(180,0,255,',
-  ];
-  for (var wi = 0; wi < 5; wi++) {
-    var wy = hy + (H - hy) * (0.08 + wi * 0.18);
-    var wAlpha = 0.5 - wi * 0.07;
-    var offset = Math.sin(tick * 0.012 + wi * 1.3) * 15;
-    ctx.beginPath();
-    ctx.moveTo(-20 + offset, wy);
-    for (var wx = 0; wx <= W + 20; wx += 40) {
-      var wh = 2 + Math.sin((wx / W) * Math.PI * 6 + tick * 0.015 + wi) * 2;
-      ctx.lineTo(wx + offset, wy + wh);
-    }
-    ctx.strokeStyle = waveColors[wi % waveColors.length] + wAlpha + ')';
-    ctx.lineWidth = wi < 2 ? 2 : 1;
-    ctx.shadowColor = wi < 2 ? '#ff2d78' : '#b400ff';
-    ctx.shadowBlur = wi < 2 ? 8 : 4;
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-  }
-
-  // Shimmer on reflection column
-  var cx = W / 2;
-  var shimW = 2 + 6 * (0.5 + 0.5 * Math.sin(tick * 0.04));
-  var shimGrad = ctx.createLinearGradient(cx, hy, cx, H);
-  shimGrad.addColorStop(0,   'rgba(255,45,120,0.4)');
-  shimGrad.addColorStop(0.5, 'rgba(255,45,120,0.15)');
-  shimGrad.addColorStop(1,   'rgba(255,45,120,0)');
-  ctx.fillStyle = shimGrad;
-  ctx.fillRect(cx - shimW / 2, hy, shimW, H - hy);
+  var hy=horizY();
+  var og=ctx.createLinearGradient(0,hy,0,H);
+  og.addColorStop(0,'#1a0035'); og.addColorStop(0.3,'#100020'); og.addColorStop(1,'#07000d');
+  ctx.fillStyle=og; ctx.fillRect(0,hy,W,H-hy);
+  ctx.beginPath(); ctx.moveTo(0,hy); ctx.lineTo(W,hy);
+  ctx.strokeStyle='rgba(255,45,120,0.9)'; ctx.lineWidth=2; ctx.shadowColor='#ff2d78'; ctx.shadowBlur=20; ctx.stroke(); ctx.shadowBlur=0;
+  for(var hi=0;hi<10;hi++){var t=Math.pow((hi+1)/10,1.6);var y=hy+(H-hy)*t;var alpha=0.35*(1-t*0.7);ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.strokeStyle='rgba(180,0,255,'+alpha+')';ctx.lineWidth=1;ctx.stroke();}
+  var vp={x:W/2,y:hy};
+  for(var vi=0;vi<14;vi++){var bx=(vi/13)*W;var a2=0.2+0.1*Math.abs(vi-7)/7;ctx.beginPath();ctx.moveTo(vp.x,vp.y);ctx.lineTo(bx,H);ctx.strokeStyle='rgba(180,0,255,'+a2+')';ctx.lineWidth=1;ctx.stroke();}
+  var wc=['rgba(255,45,120,','rgba(180,0,255,','rgba(0,245,255,','rgba(255,45,120,','rgba(180,0,255,'];
+  for(var wi=0;wi<5;wi++){var wy=hy+(H-hy)*(0.08+wi*0.18);var wA=0.5-wi*0.07;var off=Math.sin(tick*0.012+wi*1.3)*15;ctx.beginPath();ctx.moveTo(-20+off,wy);for(var wx=0;wx<=W+20;wx+=40){var wh=2+Math.sin((wx/W)*Math.PI*6+tick*0.015+wi)*2;ctx.lineTo(wx+off,wy+wh);}ctx.strokeStyle=wc[wi%wc.length]+wA+')';ctx.lineWidth=wi<2?2:1;ctx.shadowColor=wi<2?'#ff2d78':'#b400ff';ctx.shadowBlur=wi<2?8:4;ctx.stroke();ctx.shadowBlur=0;}
+  var cx=W/2;var shimW=2+6*(0.5+0.5*Math.sin(tick*0.04));var shimGrad=ctx.createLinearGradient(cx,hy,cx,H);
+  shimGrad.addColorStop(0,'rgba(255,45,120,0.4)');shimGrad.addColorStop(0.5,'rgba(255,45,120,0.15)');shimGrad.addColorStop(1,'rgba(255,45,120,0)');
+  ctx.fillStyle=shimGrad;ctx.fillRect(cx-shimW/2,hy,shimW,H-hy);
 }
-
-function render() {
-  tick++;
-  spawnShooter();
-  ctx.clearRect(0, 0, W, H);
-  drawSky();
-  drawStars();
-  drawShooters();
-  drawSunReflection();
-  drawSun();
-  drawMountains();
-  drawTrees();
-  drawOcean();
-  requestAnimationFrame(render);
-}
+function render() { tick++; spawnShooter(); ctx.clearRect(0,0,W,H); drawSky(); drawStars(); drawShooters(); drawSunReflection(); drawSun(); drawMountains(); drawTrees(); drawOcean(); requestAnimationFrame(render); }
 render();
 
 // ═══════════════════════════════════════════════
-//  GMOD CALLBACKS
+//  GMOD CALLBACKS  (nur einmal definiert!)
 // ═══════════════════════════════════════════════
 var params = new URLSearchParams(window.location.search);
-if (params.get('map')) document.getElementById('mapDisp').textContent = params.get('map').replace('ttt_','').replace(/_/g,' ').toUpperCase();
-if (params.get('maxplayers')) document.getElementById('playerCount').textContent = '--/'+params.get('maxplayers');
+var maxPlayers = parseInt(params.get('maxplayers')) || 32;
+
+function setMap(m) {
+  if (m) document.getElementById('mapDisp').textContent = m.replace('ttt_','').replace(/_/g,' ').toUpperCase();
+}
+function setMax(n) {
+  maxPlayers = parseInt(n) || 32;
+  document.getElementById('playerCount').textContent = '--/' + maxPlayers;
+}
+
+if (params.get('map')) setMap(params.get('map'));
+document.getElementById('playerCount').textContent = '--/' + maxPlayers;
 
 var curPct = 0;
 function setPct(p) {
   if (p > curPct) {
     curPct = p;
-    document.getElementById('pbar').style.width = p+'%';
-    document.getElementById('pctTxt').textContent = p+'%';
+    document.getElementById('pbar').style.width = p + '%';
+    document.getElementById('pctTxt').textContent = p + '%';
   }
 }
-window.GameDetails = function(name,url,map,max) {
-  if (map)  document.getElementById('mapDisp').textContent = map.replace('ttt_','').replace(/_/g,' ').toUpperCase();
-  if (max)  document.getElementById('playerCount').textContent = '--/'+max;
+
+window.GameDetails = function(name, url, map, max) {
+  setMap(map);
+  setMax(max);
   tryPlay();
 };
-var fbOn = true;
+
 var sProg = {Retrieving:5,'Sending client':15,Parsing:20,Receiving:30,Checking:40,Loading:55,Requesting:60,Downloading:70,'Starting Lua':80,Settling:90,Done:100};
+var fbOn = true;
+
 window.SetStatusChanged = function(s) {
   fbOn = false;
   document.getElementById('loadMsg').textContent = s.toUpperCase();
   document.getElementById('statusTxt').textContent = s.toUpperCase();
-  for (var k in sProg) { if (s.indexOf(k)!==-1) { setPct(sProg[k]); break; } }
+  for (var k in sProg) { if (s.indexOf(k) !== -1) { setPct(sProg[k]); break; } }
   tryPlay();
 };
 window.SetFilesNeeded = function(){};
 
 // Ping simulation
-setInterval(function(){ document.getElementById('pingDisp').textContent = 15+Math.floor(Math.random()*80); }, 2500);
+setInterval(function(){ document.getElementById('pingDisp').textContent = 15 + Math.floor(Math.random() * 80); }, 2500);
 
-// Fallback progress
-var fbPct=0, fbMi=0;
-var fbMsgs=['VERBINDE MIT SERVER...','SERVER INFO ABRUFEN...','MAP PRÜFEN...','RESSOURCEN LADEN...','LUA STARTEN...','FAST FERTIG...'];
+// Fallback-Progress (läuft solange GMod keine SetStatusChanged schickt)
+var fbPct = 0, fbMi = 0;
+var fbMsgs = ['VERBINDE MIT SERVER...','SERVER INFO ABRUFEN...','MAP PRÜFEN...','RESSOURCEN LADEN...','LUA STARTEN...','FAST FERTIG...'];
 var msgEl = document.getElementById('loadMsg');
 var fbIv = setInterval(function(){
   if (!fbOn) { clearInterval(fbIv); return; }
-  fbPct = Math.min(95, fbPct + 0.3 + Math.random()*1.2);
+  fbPct = Math.min(95, fbPct + 0.3 + Math.random() * 1.2);
   if (fbPct > curPct) {
-    document.getElementById('pbar').style.width = fbPct+'%';
-    document.getElementById('pctTxt').textContent = Math.floor(fbPct)+'%';
+    document.getElementById('pbar').style.width = fbPct + '%';
+    document.getElementById('pctTxt').textContent = Math.floor(fbPct) + '%';
   }
   var mi = Math.min(fbMsgs.length-1, Math.floor((fbPct/95)*(fbMsgs.length-1)));
   if (mi !== fbMi) { fbMi = mi; msgEl.textContent = fbMsgs[mi]; }
 }, 100);
 
-// ── TIPPS ──
+// ═══════════════════════════════════════════════
+//  TIPPS
+// ═══════════════════════════════════════════════
 var tips = [
   '[F3] drücken um den Shop zu öffnen – Waffen, Ausrüstung und mehr!',
   'Neue Map? Tippe !RTV im Chat um einen Map-Vote zu starten.',
@@ -903,30 +643,27 @@ tips.sort(function(){ return Math.random() - 0.5; });
 showTip();
 setInterval(showTip, 7000);
 
-// ── STEAM UTILS ──
+// ═══════════════════════════════════════════════
+//  STEAM UTILS
+// ═══════════════════════════════════════════════
 function steamToSteam64(sid) {
   sid = (sid || '').trim();
   if (/^\d{17}$/.test(sid)) return sid;
   var m = sid.match(/^STEAM_\d+:(\d):(\d+)$/i);
   if (m) {
-    try {
-      return String(BigInt('76561197960265728') + BigInt(parseInt(m[2])) * BigInt(2) + BigInt(parseInt(m[1])));
-    } catch(e) {
-      return String(76561197960265728 + parseInt(m[2]) * 2 + parseInt(m[1]));
-    }
+    try { return String(BigInt('76561197960265728') + BigInt(parseInt(m[2]))*BigInt(2) + BigInt(parseInt(m[1]))); }
+    catch(e) { return String(76561197960265728 + parseInt(m[2])*2 + parseInt(m[1])); }
   }
   return null;
 }
 
+// Fetch mit mehreren Proxy-Fallbacks + Timeout
 function fetchSteamProfile(steam64, callback) {
-  // Mehrere CORS-Proxies als Fallback
   var proxies = [
     'https://corsproxy.io/?' + encodeURIComponent('https://steamcommunity.com/profiles/' + steam64 + '/?xml=1'),
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://steamcommunity.com/profiles/' + steam64 + '/?xml=1'),
-    'https://cors-anywhere.herokuapp.com/https://steamcommunity.com/profiles/' + steam64 + '/?xml=1'
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent('https://steamcommunity.com/profiles/' + steam64 + '/?xml=1')
   ];
   var tried = 0;
-
   function tryNext() {
     if (tried >= proxies.length) { callback(null, null); return; }
     var url = proxies[tried++];
@@ -938,8 +675,8 @@ function fetchSteamProfile(steam64, callback) {
       if (xhr.status === 200 && xhr.responseText && xhr.responseText.indexOf('<steamID') !== -1) {
         try {
           var xml = xhr.responseText;
-          var nm = xml.match(/<steamID><!\[CDATA\[([^\]]+)\]\]><\/steamID>/i);
-          var av = xml.match(/<avatarMedium><!\[CDATA\[([^\]]+)\]\]><\/avatarMedium>/i);
+          var nm  = xml.match(/<steamID><!\[CDATA\[([^\]]+)\]\]><\/steamID>/i);
+          var av  = xml.match(/<avatarMedium><!\[CDATA\[([^\]]+)\]\]><\/avatarMedium>/i);
           if (nm) { callback(nm[1], av ? av[1] : null); }
           else { tryNext(); }
         } catch(e) { tryNext(); }
@@ -951,8 +688,9 @@ function fetchSteamProfile(steam64, callback) {
   tryNext();
 }
 
-// ── TEAM – HARDCODIERT ──
-// Rang-Farben: Server-Owner=#9400ff  Head-Mod=#8b0000  Admin=#0077ff  Moderator=#cc1100  Trainee-Mod=#ffe600
+// ═══════════════════════════════════════════════
+//  TEAM DATA  (hier Steam-IDs eintragen)
+// ═══════════════════════════════════════════════
 var TEAM_DATA = [
   { steamid: '76561198393177839', rank: 'Server-Owner', color: '#9400ff' }
   // { steamid: 'STEAM_0:X:XXXXXXXX', rank: 'Head-Mod',    color: '#8b0000' },
@@ -961,44 +699,22 @@ var TEAM_DATA = [
   // { steamid: 'STEAM_0:X:XXXXXXXX', rank: 'Trainee-Mod', color: '#ffe600' },
 ];
 
+// Cache: beim Start aus sessionStorage laden (überlebt Map-Wechsel im selben Browser-Prozess)
 var teamCache = {};
+try {
+  var stored = sessionStorage.getItem('hoc_team_cache');
+  if (stored) teamCache = JSON.parse(stored);
+} catch(e) {}
 
-async function getSteamProfile(steam64) {
-
-  try {
-
-    const res = await fetch(
-      "https://corsproxy.io/?https://steamcommunity.com/profiles/" +
-      steam64 +
-      "?xml=1"
-    );
-
-    const text = await res.text();
-
-    const xml = new DOMParser().parseFromString(text,"text/xml");
-
-    const name = xml.querySelector("steamID")?.textContent || "Unknown";
-    const avatar = xml.querySelector("avatarFull")?.textContent || "";
-
-    return {name, avatar};
-
-  } catch {
-    return {name:"Unknown", avatar:""};
-  }
-
+function saveCache() {
+  try { sessionStorage.setItem('hoc_team_cache', JSON.stringify(teamCache)); } catch(e) {}
 }
 
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function rankBg(col) {
-  var map = {
-    '#9400ff': 'rgba(148,0,255,0.18)',
-    '#8b0000': 'rgba(139,0,0,0.25)',
-    '#0077ff': 'rgba(0,119,255,0.18)',
-    '#cc1100': 'rgba(204,17,0,0.22)',
-    '#ffe600': 'rgba(255,230,0,0.14)'
-  };
+  var map = {'#9400ff':'rgba(148,0,255,0.18)','#8b0000':'rgba(139,0,0,0.25)','#0077ff':'rgba(0,119,255,0.18)','#cc1100':'rgba(204,17,0,0.22)','#ffe600':'rgba(255,230,0,0.14)'};
   return map[col] || 'rgba(180,0,255,0.15)';
 }
 
@@ -1012,7 +728,7 @@ function renderTeam() {
   TEAM_DATA.forEach(function(m) {
     var s64    = steamToSteam64(m.steamid) || m.steamid;
     var cached = teamCache[s64] || {};
-    var name   = cached.name   || '...';
+    var name   = cached.name || '...';
     var avatar = cached.avatar || null;
     var col    = m.color || '#b400ff';
 
@@ -1028,14 +744,14 @@ function renderTeam() {
       img.onerror = function(){ avatarDiv.innerHTML = '<span class="tm-avatar-init" style="color:'+col+'">'+name[0].toUpperCase()+'</span>'; };
       avatarDiv.appendChild(img);
     } else {
-      avatarDiv.innerHTML = '<span class="tm-avatar-init" style="color:'+col+'">?</span>';
+      avatarDiv.innerHTML = '<span class="tm-avatar-init" style="color:'+col+'">' + (name !== '...' ? name[0].toUpperCase() : '?') + '</span>';
     }
 
     var info = document.createElement('div');
     info.className = 'tm-info';
     info.innerHTML =
       '<div class="tm-name">' + escHtml(name) + '</div>' +
-      '<span class="tm-rank" style="color:'+col+';background:'+rankBg(col)+';border:1px solid '+col+'88;font-weight:bold;letter-spacing:0.18em;padding:2px 7px;">' + escHtml(m.rank||'Member') + '</span>';
+      '<span class="tm-rank" style="color:'+col+';background:'+rankBg(col)+';border:1px solid '+col+'88;">' + escHtml(m.rank||'Member') + '</span>';
 
     row.appendChild(avatarDiv);
     row.appendChild(info);
@@ -1047,9 +763,16 @@ function loadAllProfiles() {
   TEAM_DATA.forEach(function(m) {
     var s64 = steamToSteam64(m.steamid);
     if (!s64) return;
+    // Wenn bereits gecacht → sofort rendern, trotzdem im Hintergrund aktualisieren
+    if (teamCache[s64] && teamCache[s64].name && teamCache[s64].name !== '...') {
+      renderTeam(); // sofortige Darstellung aus Cache
+    }
     fetchSteamProfile(s64, function(name, avatar) {
-      teamCache[s64] = { name: name || s64, avatar: avatar };
-      renderTeam();
+      if (name) {
+        teamCache[s64] = { name: name, avatar: avatar };
+        saveCache();
+        renderTeam();
+      }
     });
   });
 }
@@ -1059,7 +782,6 @@ function toggleTeamForm() {
   f.classList.toggle('open');
   if (f.classList.contains('open')) document.getElementById('tf-sid').focus();
 }
-
 function saveTeamMember() {
   var rawSid = document.getElementById('tf-sid').value.trim();
   var rank   = document.getElementById('tf-rank').value.trim() || 'Member';
@@ -1068,13 +790,14 @@ function saveTeamMember() {
   var s64 = steamToSteam64(rawSid);
   if (!s64) { alert('Ungültige Steam ID!\nFormat: STEAM_0:1:XXXXXXXX'); return; }
   TEAM_DATA.push({ steamid: rawSid, rank: rank, color: color });
-  teamCache[s64] = { name: '...', avatar: null };
+  teamCache[s64] = { name: rawSid, avatar: null };
   renderTeam();
   document.getElementById('tf-sid').value = '';
   document.getElementById('tf-rank').value = '';
   document.getElementById('teamForm').classList.remove('open');
   fetchSteamProfile(s64, function(name, avatar) {
-    teamCache[s64] = { name: name || s64, avatar: avatar };
+    teamCache[s64] = { name: name || rawSid, avatar: avatar };
+    saveCache();
     renderTeam();
   });
 }
@@ -1082,77 +805,31 @@ function saveTeamMember() {
 renderTeam();
 loadAllProfiles();
 
-// ── GMOD CALLBACKS ──
-var params = new URLSearchParams(window.location.search);
-if (params.get('map')) document.getElementById('mapDisp').textContent = params.get('map').replace('ttt_','').replace(/_/g,' ').toUpperCase();
-var maxPlayers = parseInt(params.get('maxplayers')) || 32;
-document.getElementById('playerCount').textContent = '--/' + maxPlayers;
-
-var curPct = 0;
-function setPct(p) {
-  if (p > curPct) {
-    curPct = p;
-    document.getElementById('pbar').style.width = p + '%';
-    document.getElementById('pctTxt').textContent = p + '%';
-  }
-}
-window.GameDetails = function(name, url, map, max) {
-  if (map) document.getElementById('mapDisp').textContent = map.replace('ttt_','').replace(/_/g,' ').toUpperCase();
-  if (max) { maxPlayers = parseInt(max) || 32; document.getElementById('playerCount').textContent = '--/' + maxPlayers; }
-  tryPlay();
-};
-var fbOn = true;
-var sProg = {Retrieving:5,'Sending client':15,Parsing:20,Receiving:30,Checking:40,Loading:55,Requesting:60,Downloading:70,'Starting Lua':80,Settling:90,Done:100};
-window.SetStatusChanged = function(s) {
-  fbOn = false;
-  document.getElementById('loadMsg').textContent = s.toUpperCase();
-  document.getElementById('statusTxt').textContent = s.toUpperCase();
-  for (var k in sProg) { if (s.indexOf(k) !== -1) { setPct(sProg[k]); break; } }
-  tryPlay();
-};
-window.SetFilesNeeded = function(){};
-
-setInterval(function(){ document.getElementById('pingDisp').textContent = 15 + Math.floor(Math.random() * 80); }, 2500);
-
-var fbPct = 0, fbMi = 0;
-var fbMsgs = ['VERBINDE MIT SERVER...','SERVER INFO ABRUFEN...','MAP PRÜFEN...','RESSOURCEN LADEN...','LUA STARTEN...','FAST FERTIG...'];
-var msgEl = document.getElementById('loadMsg');
-var fbIv = setInterval(function(){
-  if (!fbOn) { clearInterval(fbIv); return; }
-  fbPct = Math.min(95, fbPct + 0.3 + Math.random() * 1.2);
-  if (fbPct > curPct) {
-    document.getElementById('pbar').style.width = fbPct + '%';
-    document.getElementById('pctTxt').textContent = Math.floor(fbPct) + '%';
-  }
-  var mi = Math.min(fbMsgs.length - 1, Math.floor((fbPct / 95) * (fbMsgs.length - 1)));
-  if (mi !== fbMi) { fbMi = mi; msgEl.textContent = fbMsgs[mi]; }
-}, 100);
-
-// ── VISUALISER BARS ──
+// ═══════════════════════════════════════════════
+//  VISUALISER BARS
+// ═══════════════════════════════════════════════
 var vBarsEl = document.getElementById('visBars');
 var vBars = [];
 for (var i = 0; i < 28; i++) {
   var b = document.createElement('div');
-  b.className = 'vbar';
-  b.style.height = '8%';
-  vBarsEl.appendChild(b);
-  vBars.push(b);
+  b.className = 'vbar'; b.style.height = '8%';
+  vBarsEl.appendChild(b); vBars.push(b);
 }
+var isPlaying = false;
 function animVis(playing) {
   for (var vi = 0; vi < vBars.length; vi++) {
-    var base = vi < 8 ? 0.6 : vi < 16 ? 0.45 : vi < 22 ? 0.3 : 0.2;
-    var h = playing
-      ? Math.max(5, (base * 0.4 + Math.random() * base) * 100)
-      : (15 + Math.sin(Date.now() / 800 + vi * 0.5) * 10);
+    var base = vi<8?0.6:vi<16?0.45:vi<22?0.3:0.2;
+    var h = playing ? Math.max(5,(base*0.4+Math.random()*base)*100) : (15+Math.sin(Date.now()/800+vi*0.5)*10);
     vBars[vi].style.height = h + '%';
   }
 }
 setInterval(function(){ animVis(isPlaying); }, 85);
 
-// ── MUSIK ──
+// ═══════════════════════════════════════════════
+//  MUSIK
+// ═══════════════════════════════════════════════
 var aud = document.getElementById('aud');
-var playlist = [], curTrk = 0, isPlaying = false;
-playlist = [
+var playlist = [
   { name: "Cheri Cheri Lady",           artist: "Modern Talking",                file: "music/01_cheri.mp3",      vol: 0.07 },
   { name: "On My Own",                  artist: "Darci",                         file: "music/02_onmyown.mp3",    vol: 0.07 },
   { name: "The Hills x After Hours",    artist: "The Weeknd",                    file: "music/03_hills.mp3",      vol: 0.07 },
@@ -1161,40 +838,25 @@ playlist = [
   { name: "Animals (Slowed)",           artist: "Maroon 5",                      file: "music/06_animals.mp3",    vol: 0.07 },
   { name: "Agora Hills",                artist: "Doja Cat",                      file: "music/07_agorahills.mp3", vol: 0.07 }
 ];
-loadTrk(Math.floor(Math.random() * playlist.length));
-setTimeout(tryPlay, 2000);
-setTimeout(tryPlay, 4000);
+var curTrk = 0;
 
 function loadTrk(idx) {
-  var t = playlist[idx];
-  if (!t) return;
+  var t = playlist[idx]; if (!t) return;
   curTrk = idx;
   document.getElementById('trackName').textContent = t.name || 'Unbekannt';
   document.getElementById('trackArtist').textContent = t.artist || '--';
-  aud.volume = (t.vol !== undefined) ? t.vol : 0.20;
-  if (t.file) {
-    aud.src = t.file;
-    aud.load();
-    aud.onerror = function() { document.getElementById('trackArtist').textContent = 'FEHLER: ' + t.file; };
-  }
+  aud.volume = t.vol !== undefined ? t.vol : 0.20;
+  if (t.file) { aud.src = t.file; aud.load(); }
 }
 function tryPlay() {
   if (isPlaying) return;
-  var vol = playlist[curTrk] ? (playlist[curTrk].vol || 0.20) : 0.20;
+  var vol = (playlist[curTrk] && playlist[curTrk].vol) || 0.20;
   aud.volume = vol;
-  aud.play().then(function(){
-    isPlaying = true; aud.volume = vol;
-  }).catch(function(){
-    setTimeout(function(){ aud.play().then(function(){ isPlaying = true; }).catch(function(){}); }, 1000);
-  });
+  aud.play().then(function(){ isPlaying = true; aud.volume = vol; })
+    .catch(function(){ setTimeout(function(){ aud.play().then(function(){ isPlaying = true; }).catch(function(){}); }, 1000); });
 }
-aud.addEventListener('volumechange', function(){
-  var target = playlist[curTrk] ? (playlist[curTrk].vol || 0.20) : 0.20;
-  if (aud.volume > target + 0.01) aud.volume = target;
-});
 aud.addEventListener('ended', function(){
-  var next = (curTrk + 1) % playlist.length;
-  loadTrk(next);
+  loadTrk((curTrk + 1) % playlist.length);
   setTimeout(function(){ aud.play().catch(function(){}); }, 100);
 });
 setInterval(function(){
@@ -1204,7 +866,11 @@ setInterval(function(){
   document.getElementById('tNow').textContent = fmt(aud.currentTime);
   document.getElementById('tTot').textContent = fmt(aud.duration);
 }, 500);
-function fmt(s) { var m = Math.floor(s / 60); return m + ':' + ('0' + Math.floor(s % 60)).slice(-2); }
+function fmt(s) { var m = Math.floor(s/60); return m+':'+('0'+Math.floor(s%60)).slice(-2); }
+
+loadTrk(Math.floor(Math.random() * playlist.length));
+setTimeout(tryPlay, 2000);
+setTimeout(tryPlay, 4000);
 </script>
 </body>
 </html>
