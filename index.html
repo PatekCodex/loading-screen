@@ -268,32 +268,53 @@ function steamToSteam64(sid){
   return null;
 }
 
-// Alle 4 Proxies GLEICHZEITIG – schnellste gültige Antwort gewinnt
+// Mehrere Methoden & Proxies – versetzt gestartet damit kein Rate-Limit greift
 function fetchSteamProfile(steam64,callback){
-  var target='https://steamcommunity.com/profiles/'+steam64+'/?xml=1';
-  var proxies=[
-    'https://corsproxy.io/?'+encodeURIComponent(target),
-    'https://api.allorigins.win/raw?url='+encodeURIComponent(target),
-    'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(target),
-    'https://thingproxy.freeboard.io/fetch/'+target
+  var xmlTarget  = 'https://steamcommunity.com/profiles/'+steam64+'/?xml=1';
+  var htmlTarget = 'https://steamcommunity.com/profiles/'+steam64+'/';
+  var attempts=[
+    {url:'https://corsproxy.io/?'+encodeURIComponent(xmlTarget),                   type:'xml'},
+    {url:'https://api.allorigins.win/raw?url='+encodeURIComponent(xmlTarget),      type:'xml'},
+    {url:'https://corsproxy.io/?'+encodeURIComponent(htmlTarget),                  type:'html'},
+    {url:'https://api.allorigins.win/raw?url='+encodeURIComponent(htmlTarget),     type:'html'},
+    {url:'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(xmlTarget), type:'xml'},
+    {url:'https://thingproxy.freeboard.io/fetch/'+xmlTarget,                       type:'xml'}
   ];
-  var done=false,failed=0;
-  function parse(text){
+  var done=false,failed=0,total=attempts.length;
+  function parseXml(text){
     if(!text||text.indexOf('<steamID')===-1)return null;
     var nm=text.match(/<steamID><!\[CDATA\[([^\]]+)\]\]><\/steamID>/i);
     var av=text.match(/<avatarMedium><!\[CDATA\[([^\]]+)\]\]><\/avatarMedium>/i);
     return nm?{name:nm[1],avatar:av?av[1]:null}:null;
   }
-  proxies.forEach(function(url){
-    var xhr=new XMLHttpRequest();xhr.open('GET',url,true);xhr.timeout=10000;
+  function parseHtml(text){
+    if(!text)return null;
+    var nm=text.match(/property=["']og:title["'][^>]*content=["']([^"'<>]+)["']/i)
+           ||text.match(/content=["']([^"'<>]+)["'][^>]*property=["']og:title["']/i);
+    var av=text.match(/property=["']og:image["'][^>]*content=["']([^"'<>]+)["']/i)
+           ||text.match(/content=["']([^"'<>]+)["'][^>]*property=["']og:image["']/i);
+    if(!nm||!nm[1]||nm[1]==='Steam'||nm[1].length<1)return null;
+    return{name:nm[1],avatar:av?av[1].replace('_full','_medium'):null};
+  }
+  function fire(idx){
+    var a=attempts[idx];
+    var xhr=new XMLHttpRequest();xhr.open('GET',a.url,true);xhr.timeout=10000;
     xhr.onreadystatechange=function(){
       if(xhr.readyState!==4||done)return;
-      if(xhr.status===200){var r=parse(xhr.responseText);if(r){done=true;callback(r.name,r.avatar);return;}}
-      failed++;if(failed===proxies.length)callback(null,null);
+      if(xhr.status===200&&xhr.responseText){
+        var r=a.type==='xml'?parseXml(xhr.responseText):parseHtml(xhr.responseText);
+        if(r){done=true;callback(r.name,r.avatar);return;}
+      }
+      failed++;if(failed===total)callback(null,null);
     };
-    xhr.onerror=xhr.ontimeout=function(){if(done)return;failed++;if(failed===proxies.length)callback(null,null);};
+    xhr.onerror=xhr.ontimeout=function(){if(done)return;failed++;if(failed===total)callback(null,null);};
     xhr.send();
-  });
+  }
+  // Erste 2 sofort, Rest versetzt (400ms) damit Proxies nicht rate-limiten
+  fire(0);fire(1);
+  for(var i=2;i<attempts.length;i++){
+    (function(idx){setTimeout(function(){if(!done)fire(idx);},400*(idx-1));})(i);
+  }
 }
 
 // ═══════════════════════════════════════════════
@@ -325,7 +346,8 @@ function renderTeam(){
     var name=cached.name||m.name||null;
     var avatar=cached.avatar||m.avatar||null;
     var col=m.color||'#b400ff';
-    var display=name||'...';
+    // Fallback: letzte 6 Zeichen der Steam64-ID anzeigen statt '...'
+    var display=name||(s64.length>6?'…'+s64.slice(-6):s64);
 
     var row=document.createElement('div');row.className='tm-row';
     var ad=document.createElement('div');ad.className='tm-avatar';ad.style.borderColor=col;
