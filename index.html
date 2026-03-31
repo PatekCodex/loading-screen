@@ -477,6 +477,7 @@ var playlist=[
   {name:"Senorita",                  artist:"Shawn Mendes & Camila Cabello",file:"music/05_senorita.mp3",vol:0.07},
   {name:"Animals (Slowed)",          artist:"Maroon 5",                     file:"music/06_animals.mp3", vol:0.07},
   {name:"Agora Hills",               artist:"Doja Cat",                     file:"music/07_agorahills.mp3",vol:0.07},
+  {name:"Dracula (JENNIE Remix)",    artist:"Tame Impala & JENNIE",         file:"music/08_dracula.mp3",vol:0.07},
 ];
 var curTrk=0;
 function loadTrk(idx){var t=playlist[idx];if(!t)return;curTrk=idx;document.getElementById('trackName').textContent=t.name||'Unbekannt';document.getElementById('trackArtist').textContent=t.artist||'--';aud.volume=t.vol!==undefined?t.vol:0.20;if(t.file){aud.src=t.file;aud.load();}}
